@@ -7,71 +7,36 @@ import asyncpg
 
 from . import pool_handler
 
-
-def group_by_time_period(start_date: date, end_date: date, period_days: int, included_dates: List[date]) -> List[date]:
-    """
-    將指定時間區間按照指定天數分組，並包含指定的日期。
-    """
-    result = []
-    current_date = start_date
-    while current_date <= end_date:
-        # 如果當前日期是指定的日期之一，則將其加入結果中。
-        if current_date in included_dates:
-            result.append(current_date)
-            included_dates.remove(current_date)
-        # 將當前日期加入當前組中。
-        current_group = [current_date]
-        current_date += timedelta(days=1)
-        # 如果當前組的日期數已經達到指定天數，或者已經到了時間區間的結尾，則將當前組加入結果中。
-        while len(current_group) < period_days and current_date <= end_date:
-            if current_date in included_dates:
-                result.append(current_date)
-                included_dates.remove(current_date)
-            current_group.append(current_date)
-            current_date += timedelta(days=1)
-        result.append(current_group)
-    return result
-
-async def get(data: object, case: str, case_table:str, time:str, table_tmp:str, table_query:str, place:List[str]) -> object:
+async def get(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str]) -> object: 
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     params = (
-        table_tmp,
+        case,
         table_query,
         case_table,
         case,
         place_str,
         str(data.end_date),
         str(data.start_date),
-    )
-    sql = """
-        create view %s as
-        select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
-        from %s a
-        join %s s on a.%s = s.id
-        where s.name in %s and a.date <= DATE '%s' and a.date >= DATE '%s'
-        group by s.name, s.id;
-    """
-    try:
-        print(sql % params)
-        await pool_handler.pool.execute(sql % params)
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
-    params = (
-        case,
         table_query,
-        table_tmp,
         case,
         data.drink,
+        str(data.end_date),
+        str(data.start_date),
     )
-    print(params)
     sql = """
-        select st.name as %s, d.name as drink, a.price, a.amount, round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion 
-        from %s a
-        join %s st on st.id = a.%s
+        select st.name as %s, d.name as drink, a.price, a.amount, round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion
+        from (
+            select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
+                from %s a
+                join %s s on a.%s = s.id
+                where s.name in %s and a.date <= DATE '%s' and a.date >= DATE '%s'
+                group by s.name, s.id
+            ) as st
+        join %s a on st.id = a.%s
         join drinks d on d.id = a.drink
-        where d.name = '%s' {}
+        where d.name = '%s' and a.date <= DATE '%s' and a.date >= DATE '%s'{}
         order by st.name
     """
     if time == 'hour':
@@ -80,21 +45,85 @@ async def get(data: object, case: str, case_table:str, time:str, table_tmp:str, 
     else:
         sql = sql.format("")
     try:
-        print(sql % params)
+        # print(sql % params)
         result = await pool_handler.pool.fetch(sql % params)
     except asyncpg.exceptions.UniqueViolationError:
-        return "db result failed"
-    params = (
-        table_tmp,
-    )
-    sql = """
-        drop view %s
-    """
-    try:
-        print(sql % params)
-        await pool_handler.pool.execute(sql % params)
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db delete failed"
+        return "db failed"
     return result
+
+async def bar(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str], interval:str, period:str) -> object: 
+    start_date = data.start_date - timedelta(days=(interval+1)*(period-1))
+    place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
+    if(time == 'hour'):
+        table_query = table_query.replace('day', 'hour')
+    params = (
+        case,
+        str(data.end_date),
+        str(data.end_date),
+        table_query,
+        case_table,
+        case,
+        place_str,
+        str(data.end_date),
+        str(start_date),
+        interval+1,
+        table_query,
+        case,
+        data.drink,
+        str(data.end_date),
+        str(start_date),
+    )
+    sql = '''
+    select  T.name as %s, T.start_date, T.end_date, T.drink,
+            sum(T.price) as price, sum(T.amount) as amount,
+            round(sum(T.price)*100/T.total_price, 2) as price_proportion, round(sum(T.amount)*100/T.total_amount, 2) as amount_proportion
+    from(
+        select st.name as name, st.start_date, st.end_date, d.name as drink, a.price, a.amount,
+            case
+                when a.date between st.start_date and st.end_date
+                then st.price
+                else null
+            end as total_price,
+            case
+                when a.date between st.start_date and st.end_date
+                then st.amount
+                else null
+            end as total_amount
+        from(
+            select id, name, min(date) as start_date, max(date) as end_date, sum(price) as price, sum(amount) as amount 
+            from(
+                select *, (lead(date, 0, '%s') OVER (PARTITION BY name order by date) - '%s' ) * -1 as rn 
+                from(
+                    select s.id as id, s.name as name, a.date,  sum(a.price) as price, sum(a.amount) as amount
+                    from %s a
+                    join %s s on a.%s = s.id
+                    where s.name in %s and a.date <= DATE '%s' and a.date >= DATE '%s'
+                    group by s.name, s.id, a.date
+                    order by s.name, a.date
+                ) as st
+            ) as T
+            group by rn/%s, id, name
+        ) as st
+        join %s a on a.%s = st.id
+        join drinks d on a.drink = d.id
+        where d.name = '%s' and a.date <= DATE '%s' and a.date >= DATE '%s' {}
+        order by st.name) as T
+    where T.total_price is not null
+    group by T.start_date, T.name, T.drink, T.end_date, T.total_price, T.total_amount 
+    order by T.name;
+    '''
+    if time == 'hour':
+        sql = sql.format("and a.hour >= %s and a.hour < %s")
+        params += (data.start_hour, data.end_hour)
+    else:
+        sql = sql.format("")
+    try:
+        # print(sql % params)
+        result = await pool_handler.pool.fetch(sql % params)
+    except asyncpg.exceptions.UniqueViolationError:
+        return "db failed"
+    return result
+    
+    
 
         
