@@ -95,7 +95,7 @@ async def bar(data: object, case: str, case_table:str, time:str, table_query:str
             from(
                 select *, (lead(date, 0, '%s') OVER (PARTITION BY name order by date) - '%s' ) * -1 as rn 
                 from(
-                    select s.id as id, s.name as name, a.date,  sum(a.price) as price, sum(a.amount) as amount
+                    select s.id as id, s.name as name, a.date, sum(a.price) as price, sum(a.amount) as amount
                     from %s a
                     join %s s on a.%s = s.id
                     where s.name in %s 
@@ -121,7 +121,6 @@ async def bar(data: object, case: str, case_table:str, time:str, table_query:str
     else:
         sql = sql.format("")
     try:
-        # print(sql % params)
         result = await pool_handler.pool.fetch(sql % params)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
@@ -178,7 +177,6 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
     from(
         select  st.name as name, d.name as drink, st.year, a.date, a.price, a.amount,
                 case
-    --            如果起始日期大於終止日期
                 when '%s' > '%s'
                     then case
                             when to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
@@ -200,7 +198,6 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
                         end
                 end as total_price,
                 case
-    --            如果起始日期大於終止日期
                 when '%s' > '%s'
                     then case
                             when to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
@@ -224,7 +221,6 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
         from(
             select  s.id, s.name, sum(price) as price, sum(amount) as amount,
             case
---            如果起始日期大於終止日期
                 when '%s' > '%s'
                     then case
                                 when to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
@@ -237,7 +233,6 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
                 from %s a
                 join %s s on a.%s = s.id
                 where case
-            --            如果起始日期大於終止日期
                         when '%s' > '%s'
                             then to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
                                 or to_char(a.date::date, 'MM-DD') between '01-01' and '%s'
@@ -252,7 +247,6 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
         join drinks d on a.drink = d.id
         where d.name = '%s'
             and case
-    --            如果起始日期大於終止日期
                 when '%s' > '%s'
                     then to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
                         or to_char(a.date::date, 'MM-DD') between '01-01' and '%s'
@@ -276,7 +270,6 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
                 order by T.name, T.drink;''')
         params += (start_year, end_year)
     try:
-        print(sql % params)
         result = await pool_handler.pool.fetch(sql % params)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"

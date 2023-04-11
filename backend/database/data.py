@@ -1,5 +1,3 @@
-from typing import List
-
 #import exceptions as exc  # noqa
 
 import asyncpg

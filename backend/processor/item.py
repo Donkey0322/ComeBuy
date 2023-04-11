@@ -9,6 +9,10 @@ router = APIRouter(
     default_response_class=responses.JSONResponse,
 )
 
+def make_global(*args, **kwargs):
+    global_data = globals()
+    for key, value in kwargs.items():
+        global_data[key] = value
 
 class SearchInput(BaseModel):
     start_date: date=None 
@@ -20,13 +24,8 @@ class SearchInput(BaseModel):
     regions: List[str]=None
     stores: List[str]=None
     drink: str
-
-def make_global(*args, **kwargs):
-    global_data = globals()
-    for key, value in kwargs.items():
-        global_data[key] = value
     
-@router.get('/search_item')
+@router.post('/search_item')
 async def get_item(data: SearchInput):
     if(data.start_date is None):
         data.start_date=datetime.now().date() - timedelta(days=6)
@@ -62,7 +61,7 @@ async def get_item(data: SearchInput):
                                table_query=global_data['table_query'], place=global_data['place'])
     return result
 
-@router.get('/bar_item')
+@router.post('/bar_item')
 async def bar_item(period: int = Body(..., embed=True)):
     global_data = globals()
     interval = (global_data['data'].end_date - global_data['data'].start_date).days 
@@ -93,7 +92,7 @@ async def bar_item(period: int = Body(..., embed=True)):
         
     return result
 
-@router.get('/line_item')
+@router.post('/line_item')
 async def line_item(year: int = Body(..., embed=True)):
     global_data = globals()
     result = await db.item.line(data=global_data['data'], case=global_data['case'], 
