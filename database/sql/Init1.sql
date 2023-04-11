@@ -199,7 +199,7 @@ CREATE TABLE categories(
 CREATE TABLE drinks(
     id        SERIAL      PRIMARY KEY,
     name      VARCHAR     NOT NULL,
-    category  VARCHAR     NOT NULL,
+    category  INTEGER     NOT NULL    REFERENCES categories(id),
     status    INTEGER     NOT NULL    REFERENCES status(id)
 );
 
