@@ -73,12 +73,12 @@ async def bar_item(period: int = Body(..., embed=True)):
         period_end = global_data['data'].end_date - timedelta(days=(interval+1)*i)
         period_date.append([period_start, period_end])
         
-    result = await db.item.bar(data=global_data['data'], case=global_data['case'], 
+    records = await db.item.bar(data=global_data['data'], case=global_data['case'], 
                                case_table=global_data['case_table'], time=global_data['time'], 
                                table_query=global_data['table_query'], place=global_data['place'],
                                interval=interval, period=period)
     
-    record_list = [list(record) for record in result]
+    record_list = [list(record) for record in records]
     for i in record_list:
         for j in period_date:
             if j[0] <= i[1] <= j[1]:
@@ -90,11 +90,14 @@ async def bar_item(period: int = Body(..., embed=True)):
     for i in record_list:
         D = dict(zip(keys, i))
         result.append(D)
-
+        
     return result
 
-# @router.get('/line_item')
-# async def line_item(year: int = Body(..., embed=True)):
-#     global_data = globals()
-#     result = await db.item.get(data=data)
-#     return result
+@router.get('/line_item')
+async def line_item(year: int = Body(..., embed=True)):
+    global_data = globals()
+    result = await db.item.line(data=global_data['data'], case=global_data['case'], 
+                               case_table=global_data['case_table'], time=global_data['time'], 
+                               table_query=global_data['table_query'], place=global_data['place'],
+                               year=year)
+    return result

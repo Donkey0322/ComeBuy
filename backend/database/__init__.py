@@ -42,4 +42,5 @@ pool_handler = PoolHandler()
 # For import usage
 from . import (
     item,
+    data
 )
