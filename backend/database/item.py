@@ -26,7 +26,7 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
         str(data.end_date),
     )
     sql = """
-        select  st.name as %s, d.name as drink, a.price, a.amount, 
+        select  a.date, st.name as %s, d.name as drink, a.price, a.amount, 
                 st.price as total_price, st.amount as total_amount,
                 round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion
         from (
