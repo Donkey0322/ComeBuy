@@ -1,5 +1,6 @@
 import { ContactlessOutlined } from "@mui/icons-material";
 import { useState, useContext, createContext, useEffect } from "react";
+import { getConst } from "../middleware";
 
 const ConditionContext = createContext({
   condition: {},
@@ -30,6 +31,13 @@ const ConditionProvider = (props) => {
       ),
     }));
   };
+
+  useEffect(() => {
+    (async () => {
+      const result = await getConst();
+      console.log(result);
+    })();
+  });
 
   return (
     <ConditionContext.Provider

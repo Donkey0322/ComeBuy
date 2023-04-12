@@ -4,6 +4,7 @@ desktop.ini
 node_module/
 git.js
 package.json
-yarn.lock
+**/yarn.lock
 .idea/
 db_data/
+backend/**/__pycache__
