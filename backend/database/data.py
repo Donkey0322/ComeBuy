@@ -7,7 +7,7 @@ from . import pool_handler
 async def get() -> object:
     data = {}
     sql = '''
-    select r.name as region, c.name as county, d.name as district, stores.name as store  from stores
+    select distinct r.name as region, c.name as county, d.name as district, stores.name as store  from stores
     join regions r on stores.region = r.id
     join counties c on stores.county = c.id
     join districts d on stores.district = d.id;
@@ -19,7 +19,7 @@ async def get() -> object:
         return "db failed"
     
     sql = '''
-    select c.name as category, drinks.name as drink from drinks
+    select distinct c.name as category, drinks.name as drink from drinks
     join categories c on drinks.category = c.id;
     '''
     try:
@@ -29,7 +29,7 @@ async def get() -> object:
         return "db failed"
     
     sql = '''
-    select sweets.name from sweets;
+    select distinct sweets.name from sweets;
     '''
     try:
         result = await pool_handler.pool.fetch(sql)
@@ -38,7 +38,7 @@ async def get() -> object:
         return "db failed"
     
     sql = '''
-    select ices.name from ices;
+    select distinct ices.name from ices;
     '''
     try:
         result = await pool_handler.pool.fetch(sql)

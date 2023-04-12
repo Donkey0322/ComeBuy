@@ -26,12 +26,14 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
         str(data.end_date),
     )
     sql = """
-        select st.name as %s, d.name as drink, a.price, a.amount, round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion
+        select  st.name as %s, d.name as drink, a.price, a.amount, 
+                st.price as total_price, st.amount as total_amount,
+                round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion
         from (
             select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
                 from %s a
                 join %s s on a.%s = s.id
-                where s.name in %s and a.date between '%s' and '%s'
+                where s.name in %s and a.date between '%s' and '%s' 
                 group by s.name, s.id
             ) as st
         join %s a on st.id = a.%s
@@ -45,7 +47,6 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
     else:
         sql = sql.format("")
     try:
-        # print(sql % params)
         result = await pool_handler.pool.fetch(sql % params)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
@@ -77,6 +78,7 @@ async def bar(data: object, case: str, case_table:str, time:str, table_query:str
     sql = '''
     select  T.name as %s, T.start_date, T.end_date, T.drink,
             sum(T.price) as price, sum(T.amount) as amount,
+            T.total_price, T.total_amount,
             round(sum(T.price)*100/T.total_price, 2) as price_proportion, round(sum(T.amount)*100/T.total_amount, 2) as amount_proportion
     from(
         select st.name as name, st.start_date, st.end_date, d.name as drink, a.price, a.amount,
@@ -172,6 +174,7 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
     )
     sql='''
     select  T.name as %s, T.drink, T.year, sum(T.price) as price, sum(T.amount) as amount,
+            T.total_price, T.total_amount,
             round(sum(T.price)*100.00/T.total_price, 2) as price_proportion,
             round(sum(T.amount)*100.00/T.total_amount, 2) as amount_proportion
     from(
