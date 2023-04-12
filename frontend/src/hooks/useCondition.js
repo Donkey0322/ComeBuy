@@ -1,11 +1,13 @@
-import { ContactlessOutlined } from "@mui/icons-material";
 import { useState, useContext, createContext, useEffect } from "react";
 import { getConst } from "../middleware";
 
 const ConditionContext = createContext({
   condition: {},
+  DATA: {},
   addLocationCondtion: () => {},
   deleteLocationCondition: () => {},
+  addBeverageCondition: () => {},
+  deleteBeverageCondition: () => {},
 });
 
 const ConditionProvider = (props) => {
@@ -13,8 +15,9 @@ const ConditionProvider = (props) => {
     time: {},
     location: [],
     method: [],
-    beverage: {},
+    beverage: [],
   });
+  const [DATA, SETDATA] = useState("");
 
   const addLocationCondtion = (name, level, route) => {
     setCondition((prev) => ({
@@ -32,20 +35,43 @@ const ConditionProvider = (props) => {
     }));
   };
 
+  const addBeverageCondition = (name) => {
+    setCondition((prev) => ({
+      ...prev,
+      beverage: [...prev.beverage, name],
+    }));
+  };
+
+  const deleteBeverageCondition = (name) => {
+    setCondition((prev) => ({
+      ...prev,
+      beverage: prev.beverage.filter((b) => b !== name),
+    }));
+  };
+
   useEffect(() => {
-    (async () => {
-      const result = await getConst();
-      console.log(result);
-    })();
-  });
+    if (!DATA) {
+      (async () => {
+        try {
+          const result = await getConst();
+          SETDATA(result);
+        } catch (error) {
+          throw error;
+        }
+      })();
+    }
+  }, [DATA]);
 
   return (
     <ConditionContext.Provider
       value={{
         condition,
+        DATA,
         setCondition,
         addLocationCondtion,
         deleteLocationCondition,
+        addBeverageCondition,
+        deleteBeverageCondition,
       }}
       {...props}
     />

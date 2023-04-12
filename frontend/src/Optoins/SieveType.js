@@ -6,10 +6,14 @@ import {
   ListItem,
   ListItemText,
   Collapse,
+  Button,
 } from "@mui/material";
+import { useCondition } from "../hooks/useCondition";
 import Location from "./Location";
 import Time from "./Time";
 import Beverage from "./Beverage";
+import Ice from "./Ice";
+import Sweet from "./Sweet";
 
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
@@ -19,10 +23,13 @@ const SieveType = () => {
       child: <Location />,
     },
     購買方式: { focused: false },
-    品項: { focused: false, child: <Beverage /> },
-    口味: { focused: false },
+    品項: { focused: false, child: <Beverage />, image: "drink" },
+    // 口味: { focused: false },
+    甜度: { focused: false, child: <Sweet /> },
+    冰塊: { focused: false, child: <Ice /> },
     加料: { focused: false },
   });
+  const { condition } = useCondition();
 
   // useEffect(() => {
   //   setSieveType((prev) => ({
@@ -56,39 +63,54 @@ const SieveType = () => {
   //   };
 
   return (
-    <List
-      sx={{
-        ml: 1,
-        mt: 1,
-        width: "90%",
-        // maxWidth: 360,
-        bgcolor: "background.paper",
-      }}
-      component="nav"
-      aria-labelledby="nested-list-subheader"
-      subheader={
-        <ListSubheader component="div" id="nested-list-subheader">
-          篩選條件
-        </ListSubheader>
-      }
-    >
-      {Object.keys(sieveType).map((s, index) => (
-        <div key={index}>
-          <ListItemButton key={index} onClick={handleSieveClick(s)}>
-            <ListItemText primary={s} />
-          </ListItemButton>
-          <Collapse
-            in={Boolean(sieveType[s].focused && sieveType[s].child)}
-            unmountOnExit
-            sx={{ width: "100%" }}
-          >
-            <List component="div" disablePadding>
-              <ListItem>{sieveType[s].child}</ListItem>
-            </List>
-          </Collapse>
-        </div>
-      ))}
-    </List>
+    <>
+      <List
+        sx={{
+          ml: 1,
+          mt: 1,
+          width: "90%",
+          // maxWidth: 360,
+          bgcolor: "background.paper",
+        }}
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader">
+            篩選條件
+          </ListSubheader>
+        }
+      >
+        {Object.keys(sieveType).map((s, index) => (
+          <div key={index}>
+            <ListItemButton
+              key={index}
+              onClick={handleSieveClick(s)}
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              {sieveType[s].image && (
+                <img
+                  src={require(`./${sieveType[s].image}.${
+                    sieveType[s].focused ? "gif" : "png"
+                  }`)}
+                  alt=""
+                  width={30}
+                />
+              )}
+              <ListItemText sx={{ ml: 1 }}>{s}</ListItemText>
+            </ListItemButton>
+            <Collapse
+              in={Boolean(sieveType[s].focused && sieveType[s].child)}
+              unmountOnExit
+              sx={{ width: "100%" }}
+            >
+              <List component="div" disablePadding>
+                <ListItem>{sieveType[s].child}</ListItem>
+              </List>
+            </Collapse>
+          </div>
+        ))}
+      </List>
+    </>
   );
 };
 

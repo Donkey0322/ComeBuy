@@ -1,6 +1,6 @@
 import React, { useState } from "react"; //useEffect,
 import {
-  FormControlLabel,
+  FormLabel,
   Button,
   Dialog,
   ListItem,
@@ -9,14 +9,25 @@ import {
   Toolbar,
   IconButton,
   Typography,
-  Collapse,
   Slide,
+  Box,
+  ListItemText,
+  Divider,
+  Checkbox,
+  Chip,
+  DialogContent,
 } from "@mui/material";
-// import { useCondition } from "../../hooks/useCondition";
+import { useCondition } from "../../hooks/useCondition";
 import CloseIcon from "@mui/icons-material/Close";
-// import StoreIcon from "@mui/icons-material/Store";
-import DATA from "./beverage.json";
-import Test from "./test";
+import styled from "styled-components";
+import LocalDrinkRoundedIcon from "@mui/icons-material/LocalDrinkRounded";
+
+const Menu = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  column-gap: 10px;
+`;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -24,15 +35,62 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const DistrictModal = () => {
   const [open, setOpen] = useState(false);
+  const {
+    condition,
+    deleteBeverageCondition,
+    addBeverageCondition,
+    DATA: { 飲品: DATA },
+  } = useCondition();
   const handleModalClose = () => {
     setOpen(false);
   };
 
+  const handleBeverageCheck = (name) => (e) => {
+    if (e.target.checked) {
+      addBeverageCondition(name);
+    } else {
+      deleteBeverageCondition(name);
+    }
+  };
+
+  const handleCategoryCheck = (name) => (e) => {};
+
   return (
-    <>
+    <Box>
       <Button sx={{ ml: -1 }} size="large" onClick={() => setOpen(true)}>
         全品項
       </Button>
+      <FormLabel sx={{ mt: 2 }} component="legend">
+        已選擇
+      </FormLabel>
+      <Box
+        direction="row"
+        spacing={1}
+        sx={{
+          mt: 1,
+          borderColor: "divider",
+          borderWidth: "1px",
+          minHeight: "100px",
+          width: "100%",
+          minWidth: "400px",
+          borderRadius: "10px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "2vmin",
+          p: 1,
+        }}
+      >
+        {condition.beverage.map((b, index) => (
+          <Chip
+            key={index}
+            label={b}
+            onDelete={() => deleteBeverageCondition(b)}
+            name={b}
+            icon={<LocalDrinkRoundedIcon />}
+            // color={checkValidCondition() ? "default" : c.level}
+          />
+        ))}
+      </Box>
       <Dialog
         open={open}
         onClose={handleModalClose}
@@ -53,94 +111,36 @@ const DistrictModal = () => {
             </Button>
           </Toolbar>
         </AppBar>
-        {Object.keys(DATA).map(
-          (
-            d, //d是松山區
-            index
-          ) => (
-            <List key={index}>
-              <ListItem>
-                <FormControlLabel
-                  control={
-                    <Button
-                      variant="outlined"
-                      // variant={district[d].focused ? "contained" : "outlined"}
-                      // onClick={handleDistrictFocus(d)}
+        <DialogContent>
+          <Box sx={{ height: "60vh", display: "flex" }}>
+            <Menu>
+              {Object.keys(DATA).map((category, c_index) => (
+                <Box sx={{ minWidth: "200px" }} key={c_index}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 600, flexGrow: 1 }}
                     >
-                      {d}
-                    </Button>
-                  }
-                />
-                {/* <ListItemButton></ListItemButton> */}
-              </ListItem>
-              <ListItem>
-                <Collapse in={true}>
-                  <Test data={DATA[d]} />
-                </Collapse>
-              </ListItem>
-            </List>
-          )
-        )}
-        {/* <List>
-        {Object.keys(district).map(
-          (
-            d, //d是松山區
-            index
-          ) => (
-            <div key={index}>
-              <ListItem>
-                <FormControlLabel
-                  control={
-                    <>
-                      <Checkbox
-                        checked={district[d].checked}
-                        onChange={handleDistrictCheck(d)}
-                        name={d}
-                      />
-                      <Button
-                        variant={district[d].focused ? "contained" : "outlined"}
-                        onClick={handleDistrictFocus(d)}
-                      >
-                        {d}
-                      </Button>
-                    </>
-                  }
-                />
-              </ListItem>
-              <Collapse in={district[d].focused} unmountOnExit sx={{ ml: 6 }}>
-                <Box
-                  direction="row"
-                  spacing={1}
-                  sx={{
-                    borderColor: "divider",
-                    borderWidth: "1px",
-                    width: "30%",
-                    borderRadius: "10px",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "2vmin",
-                    p: 1,
-                  }}
-                >
-                  {store.length > 0 &&
-                    Object.keys(store[index]).map((s, i) => (
-                      <Chip
-                        onClick={handleStoreClick(s, index)}
-                        icon={<StoreIcon />}
-                        label={s}
-                        key={i}
-                        color={store[index][s] ? "primary" : "default"}
-                      />
+                      {category}
+                    </Typography>
+                    <Checkbox />
+                  </Box>
+                  <Divider />
+                  <List>
+                    {DATA[category].map((b, b_index) => (
+                      <ListItem disablePadding key={b_index}>
+                        <ListItemText primary={b} sx={{ flexGrow: 1 }} />
+                        <Checkbox onClick={handleBeverageCheck(b)} />
+                      </ListItem>
                     ))}
+                  </List>
                 </Box>
-              </Collapse>
-              <Divider />
-            </div>
-          )
-        )}
-      </List> */}
+              ))}
+            </Menu>
+          </Box>
+        </DialogContent>
       </Dialog>
-    </>
+    </Box>
   );
 };
 export default DistrictModal;

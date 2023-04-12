@@ -1,12 +1,5 @@
-// import POST from "./simplePost";
+import POST from "./simplePost";
 
-// export const {
-//   login,
-//   signup,
-//   forgetPassword,
-//   resetPassword,
-//   addMeet,
-//   joinMeet,
-// } = POST;
+export const { searchItem, getLineChart, getBarChart } = POST;
 
 export { getConst } from "./const";
