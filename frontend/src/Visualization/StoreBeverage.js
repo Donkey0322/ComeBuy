@@ -1,24 +1,14 @@
 import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Box,
-  // Container,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import {
   DataGrid,
-  GridToolbar,
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
   GridToolbarExport,
   GridToolbarDensitySelector,
 } from "@mui/x-data-grid";
+import { useCondition } from "../hooks/useCondition";
 
 const CustomToolBar = () => {
   return (
@@ -36,27 +26,32 @@ const CustomToolBar = () => {
   );
 };
 
-const DataGridDemo = ({ data }) => {
+const levelMap = {
+  region: "區域",
+  county: "縣市",
+  district: "地方區域",
+  store: "門市",
+};
+
+const StoreBeverage = ({ data }) => {
+  const {
+    condition: { location },
+  } = useCondition();
+
   const DATA = {
     label: [
       "序號",
-      "門市名稱",
-      "總杯數",
+      `${levelMap[location?.[0].level]}名稱`,
       "飲品",
+      "總杯數",
       "飲品杯數",
       "杯數佔比",
+      "總金額",
       "飲品金額",
       "金額佔比",
+      "交易日期",
     ],
     data,
-    // data: [
-    //   [1, "台北永春", 3714, "招牌奶茶", 470, "12.65%", 15100, "11.91%"],
-    //   [2, "台北北醫", 5376, "招牌奶茶", 641, "11.92%", 19200, "13.37%"],
-    //   [3, "台北延吉", 5520, "招牌奶茶", 494, "8.95%", 15000, "11.19%"],
-    //   [4, "松山新東", 3613, "招牌奶茶", 296, "18.19%", 9200, "8.36%"],
-    //   [5, "台北永吉", 3895, "招牌奶茶", 315, "8.09%", 9500, "10.05%"],
-    //   [6, "台北饒河", 3138, "招牌奶茶", 249, "7.93%", 7500, "6.55%"],
-    // ],
   };
 
   const TEST = DATA.data
@@ -64,7 +59,10 @@ const DataGridDemo = ({ data }) => {
         column: DATA?.label.map((m) => ({
           field: m,
           headerName: m,
-          flex: 1,
+          flex: m.includes("日期") ? 1.8 : 1,
+          type: m.includes("日期") && "dateTime",
+          valueGetter:
+            m.includes("日期") && (({ value }) => value && new Date(value)),
         })),
         row: DATA?.data.map((m, index) =>
           // m.reduce(
@@ -73,13 +71,16 @@ const DataGridDemo = ({ data }) => {
           // )
           ({
             序號: index,
-            門市名稱: m.store,
-            總杯數: "temp",
+            [`${levelMap[location?.[0].level]}名稱`]:
+              m?.store ?? m?.region ?? m?.county ?? m.district,
             飲品: m.drink,
+            總杯數: m.total_amount,
             飲品杯數: m.amount,
             杯數佔比: m.amount_proportion,
+            總金額: m.total_price,
             飲品金額: m.price,
             金額佔比: m.price_proportion,
+            交易日期: m.date,
           })
         ),
       }
@@ -95,13 +96,14 @@ const DataGridDemo = ({ data }) => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 50,
               },
             },
           }}
           slots={{ toolbar: CustomToolBar }}
           getRowId={(row) => row.序號}
-          pageSizeOptions={[5]}
+          pageSizeOptions={[10, 25, 50, 100]}
+          // pageSizeOptions={[5]}
           disableRowSelectionOnClick
         />
       )}
@@ -109,4 +111,4 @@ const DataGridDemo = ({ data }) => {
   );
 };
 
-export default DataGridDemo;
+export default StoreBeverage;

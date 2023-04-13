@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Box, Tab, Button } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import StoreBeverage from "./StoreBeverage";
@@ -12,6 +12,7 @@ export default function LabTabs() {
   const [value, setValue] = useState("1");
   const { condition } = useCondition();
   const [result, setResult] = useState({});
+  const ref = useRef();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -60,34 +61,44 @@ export default function LabTabs() {
       const bar = await getBarChart({ period: 3 });
       console.log(bar);
       setResult((prev) => ({ ...prev, BarChart: bar }));
+      ref.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
     } catch (error) {
       throw error;
     }
   };
+
   return (
     <Box sx={{ ml: 3, width: "90%", typography: "body1" }}>
-      <Button variant="contained" onClick={handleSearchClick}>
+      <Button variant="contained" onClick={handleSearchClick} sx={{ mb: 2 }}>
         送出
       </Button>
       {Object.keys(result).length > 0 && (
-        <TabContext value={value}>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <TabList onChange={handleChange} aria-label="lab API tabs example">
-              <Tab label="各門市杯數及占比" value="1" />
-              <Tab label="過去若干年趨勢" value="2" />
-              <Tab label="過去若干時段趨勢" value="3" />
-            </TabList>
-          </Box>
-          <TabPanel value="1">
-            <StoreBeverage data={result.StoreBeverage} />
-          </TabPanel>
-          <TabPanel value="2">
-            <LineChartAnalysis data={result.LineChart} />
-          </TabPanel>
-          <TabPanel value="3">
-            <BarChartAnalysis />
-          </TabPanel>
-        </TabContext>
+        <div ref={ref}>
+          <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList
+                onChange={handleChange}
+                aria-label="lab API tabs example"
+              >
+                <Tab label="總表" value="1" />
+                <Tab label="過去若干年趨勢" value="2" />
+                <Tab label="過去若干時段趨勢" value="3" />
+              </TabList>
+            </Box>
+            <TabPanel value="1">
+              <StoreBeverage data={result.StoreBeverage} />
+            </TabPanel>
+            <TabPanel value="2">
+              <LineChartAnalysis data={result.LineChart} />
+            </TabPanel>
+            <TabPanel value="3">
+              <BarChartAnalysis data={result.BarChart} />
+            </TabPanel>
+          </TabContext>
+        </div>
       )}
     </Box>
   );

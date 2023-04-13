@@ -17,10 +17,11 @@ import Sweet from "./Sweet";
 
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
-    時間: { focused: false, child: <Time /> },
+    時間: { focused: false, child: <Time />, image: "time" },
     地區: {
       focused: false,
       child: <Location />,
+      image: "location",
     },
     購買方式: { focused: false },
     品項: { focused: false, child: <Beverage />, image: "drink" },
@@ -89,11 +90,11 @@ const SieveType = () => {
             >
               {sieveType[s].image && (
                 <img
-                  src={require(`./${sieveType[s].image}.${
+                  src={require(`./assets/${sieveType[s].image}.${
                     sieveType[s].focused ? "gif" : "png"
                   }`)}
                   alt=""
-                  width={30}
+                  width={sieveType[s].focused ? 32 : 28}
                 />
               )}
               <ListItemText sx={{ ml: 1 }}>{s}</ListItemText>

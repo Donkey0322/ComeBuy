@@ -9,14 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import {
-  Container,
-  FormControl,
-  OutlinedInput,
-  InputLabel,
-  InputAdornment,
-  FormHelperText,
-} from "@mui/material";
+import { FormControl, OutlinedInput, InputLabel } from "@mui/material";
 import { useCondition } from "../hooks/useCondition";
 import _ from "lodash";
 import { getLineChart } from "../middleware";
@@ -43,20 +36,21 @@ const LineChartAnalysis = ({ data }) => {
     },
   } = useCondition();
   const baseYear = end.$y;
-  const dataFormatProcessing = (rawData) =>
+  const dataFormatProcessing = (rawData, year) =>
     _.range(baseYear - year, baseYear + 2).map((y, index) => {
       let temp = { year: y };
       if (index !== 0 && index !== year + 2) {
         temp = rawData?.reduce((acc, curr) => {
           if (curr.year === y) {
-            acc[curr.store] = curr.amount;
+            acc[curr?.store ?? curr?.region ?? curr?.county ?? curr.district] =
+              curr.amount_proportion;
           }
           return acc;
         }, temp);
       }
       return temp;
     });
-  const [points, setPoints] = useState(dataFormatProcessing(data));
+  const [points, setPoints] = useState(dataFormatProcessing(data, 3));
   // const handleMouseEnter = (o) => {
   //   const { dataKey } = o;
   //   setOpacity((prev) => ({ ...prev, [dataKey]: 0.5 }));
@@ -76,7 +70,7 @@ const LineChartAnalysis = ({ data }) => {
   const debounceFetchLine = useCallback(
     _.debounce(async (year) => {
       const result = await getLineChart({ year });
-      setPoints(dataFormatProcessing(result));
+      setPoints(dataFormatProcessing(result, year));
       setKey((prev) => prev + 1);
     }, 800),
     []
