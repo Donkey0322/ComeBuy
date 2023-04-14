@@ -9,6 +9,7 @@ import {
   GridToolbarDensitySelector,
 } from "@mui/x-data-grid";
 import { useCondition } from "../hooks/useCondition";
+import moment from "moment";
 
 const CustomToolBar = () => {
   return (
@@ -34,14 +35,12 @@ const levelMap = {
 };
 
 const StoreBeverage = ({ data }) => {
-  const {
-    condition: { location },
-  } = useCondition();
+  const { systemState } = useCondition();
 
   const DATA = {
     label: [
       "序號",
-      `${levelMap[location?.[0].level]}名稱`,
+      `${levelMap[systemState?.locationLevel]}名稱`,
       "飲品",
       "總杯數",
       "飲品杯數",
@@ -61,28 +60,27 @@ const StoreBeverage = ({ data }) => {
           headerName: m,
           flex: m.includes("日期") ? 1.8 : 1,
           type: m.includes("日期") && "dateTime",
-          valueGetter:
-            m.includes("日期") && (({ value }) => value && new Date(value)),
+          valueGetter: ({ value }) =>
+            m.includes("日期") ? new Date(value) : value,
+          valueFormatter: ({ value }) =>
+            m.includes("日期")
+              ? moment(value).format("YYYY-MM-DD")
+              : value < 1
+              ? `${(value * 100).toFixed(2)}%`
+              : value,
         })),
-        row: DATA?.data.map((m, index) =>
-          // m.reduce(
-          //   (acc, curr, currIndex) => ((acc[DATA.label[currIndex]] = curr), acc),
-          //   {}
-          // )
-          ({
-            序號: index,
-            [`${levelMap[location?.[0].level]}名稱`]:
-              m?.store ?? m?.region ?? m?.county ?? m.district,
-            飲品: m.drink,
-            總杯數: m.total_amount,
-            飲品杯數: m.amount,
-            杯數佔比: m.amount_proportion,
-            總金額: m.total_price,
-            飲品金額: m.price,
-            金額佔比: m.price_proportion,
-            交易日期: m.date,
-          })
-        ),
+        row: DATA?.data.map((m, index) => ({
+          序號: index + 1,
+          [`${levelMap[systemState?.locationLevel]}名稱`]: m.location,
+          飲品: m.drink,
+          總杯數: m.total_amount,
+          飲品杯數: m.amount,
+          杯數佔比: m.amount_proportion,
+          總金額: m.total_price,
+          飲品金額: m.price,
+          金額佔比: m.price_proportion,
+          交易日期: m.date,
+        })),
       }
     : "";
 
@@ -96,14 +94,13 @@ const StoreBeverage = ({ data }) => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 50,
+                pageSize: 10,
               },
             },
           }}
           slots={{ toolbar: CustomToolBar }}
           getRowId={(row) => row.序號}
           pageSizeOptions={[10, 25, 50, 100]}
-          // pageSizeOptions={[5]}
           disableRowSelectionOnClick
         />
       )}

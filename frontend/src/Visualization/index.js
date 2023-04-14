@@ -6,15 +6,17 @@ import LineChartAnalysis from "./LineChartAnalysis";
 import BarChartAnalysis from "./BarChartAnalysis";
 import { useCondition } from "../hooks/useCondition";
 import moment from "moment";
+import _ from "lodash";
 import { searchItem, getLineChart, getBarChart } from "../middleware";
 
 export default function LabTabs() {
   const [value, setValue] = useState("1");
-  const { condition } = useCondition();
+  const { condition, setSystemState } = useCondition();
   const [result, setResult] = useState({});
+  const [THEME, setTheme] = useState([]);
   const ref = useRef();
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (_, newValue) => {
     setValue(newValue);
   };
   const handleSearchClick = async () => {
@@ -54,6 +56,15 @@ export default function LabTabs() {
         },
         temp
       );
+      setSystemState({ locationLevel: condition.location?.[0]?.level });
+      setTheme(
+        _.range(10).map(
+          () =>
+            "#" +
+            (0x1000000 + Math.random() * 0xffffff).toString(16).substring(1, 7)
+        )
+      );
+      setValue("1");
       const data = await searchItem(temp);
       setResult((prev) => ({ ...prev, StoreBeverage: data }));
       const line = await getLineChart({ year: 3 });
@@ -92,10 +103,10 @@ export default function LabTabs() {
               <StoreBeverage data={result.StoreBeverage} />
             </TabPanel>
             <TabPanel value="2">
-              <LineChartAnalysis data={result.LineChart} />
+              <LineChartAnalysis data={result.LineChart} THEME={THEME} />
             </TabPanel>
             <TabPanel value="3">
-              <BarChartAnalysis data={result.BarChart} />
+              <BarChartAnalysis data={result.BarChart} THEME={THEME} />
             </TabPanel>
           </TabContext>
         </div>

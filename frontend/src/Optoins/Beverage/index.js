@@ -26,7 +26,7 @@ const Menu = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  column-gap: 10px;
+  column-gap: 60px;
 `;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -115,7 +115,7 @@ const DistrictModal = () => {
           <Box sx={{ height: "60vh", display: "flex" }}>
             <Menu>
               {Object.keys(DATA).map((category, c_index) => (
-                <Box sx={{ minWidth: "200px" }} key={c_index}>
+                <Box sx={{ minWidth: "120px" }} key={c_index}>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Typography
                       variant="h6"

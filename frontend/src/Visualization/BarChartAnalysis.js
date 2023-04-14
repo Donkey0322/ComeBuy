@@ -1,8 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   BarChart,
   Bar,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -10,16 +9,19 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { FormControl, OutlinedInput, InputLabel } from "@mui/material";
+import {
+  FormControl,
+  OutlinedInput,
+  InputLabel,
+  Box,
+  ToggleButtonGroup,
+  ToggleButton,
+  Typography,
+} from "@mui/material";
 import _ from "lodash";
 import moment from "moment";
 import { useCondition } from "../hooks/useCondition";
 import { getBarChart } from "../middleware";
-
-const THEME = _.range(10).map(
-  () =>
-    "#" + (0x1000000 + Math.random() * 0xffffff).toString(16).substring(1, 7)
-);
 
 const CustomizedAxisTick = (props) => {
   const { x, y, payload } = props;
@@ -38,17 +40,18 @@ const CustomizedAxisTick = (props) => {
   );
 };
 
-const BarChartAnalysis = ({ data }) => {
+const BarChartAnalysis = ({ data, THEME }) => {
   const [period, setPeriod] = useState(3);
   const {
     condition: {
       time: { date },
-      location,
     },
   } = useCondition();
+  const [showType, setShowType] = useState("杯數佔比");
 
-  const dataFormatProcessing = (rawData, period) =>
-    _.range(period)
+  const dataFormatProcessing = (rawData, period, type = "杯數佔比") => {
+    let location = new Set();
+    const result = _.range(period)
       .map((p) => {
         let temp = {
           year:
@@ -78,16 +81,33 @@ const BarChartAnalysis = ({ data }) => {
         };
         temp = rawData?.reduce((acc, curr) => {
           if (curr.start_date === temp.year.split(" ")[0]) {
-            acc[curr.stores] = curr.amount_proportion;
+            acc[curr.location] =
+              curr[
+                type === "杯數佔比" ? "amount_proportion" : "price_proportion"
+              ];
+            location.add(curr.location);
           }
           return acc;
         }, temp);
         return temp;
       })
       .reverse();
+    return {
+      data: result,
+      bar: [...location].map((l) => ({ name: l, hide: false })),
+    };
+  };
 
   const [bars, setBars] = useState(dataFormatProcessing(data, 3));
   const [key, setKey] = useState(0);
+  const debounceFetchBar = useCallback(
+    _.debounce(async (period) => {
+      const result = await getBarChart({ period });
+      setBars(dataFormatProcessing(result, period));
+      setKey((prev) => prev + 1);
+    }, 300),
+    []
+  );
 
   const handlePeriodChange = (e) => {
     const { value } = e.target;
@@ -96,56 +116,110 @@ const BarChartAnalysis = ({ data }) => {
       debounceFetchBar(value);
     }
   };
-  const debounceFetchBar = useCallback(
-    _.debounce(async (period) => {
-      const result = await getBarChart({ period });
-      setBars(dataFormatProcessing(result, period));
+
+  useEffect(() => {
+    if (data) {
+      setBars(dataFormatProcessing(data, 3));
       setKey((prev) => prev + 1);
-    }, 800),
-    []
-  );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (showType) {
+      setBars(dataFormatProcessing(data, 3, showType));
+      setKey((prev) => prev + 1);
+    }
+  }, [showType]);
+
+  const 點按圖例 = (e) => {
+    setBars((prev) => ({
+      ...prev,
+      bar: prev.bar.map((b) =>
+        b.name === e.dataKey ? { name: b.name, hide: !b.hide } : b
+      ),
+    }));
+  };
 
   return (
     <div style={{ width: "100%" }}>
-      <FormControl sx={{ mb: 3, width: "25ch" }} variant="outlined">
-        <InputLabel id="demo-select-small">期數</InputLabel>
-        <OutlinedInput
-          label="期數"
-          type="number"
-          onChange={handlePeriodChange}
-          value={period}
-        />
-      </FormControl>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart
-          width={500}
-          height={300}
-          data={bars}
-          margin={{
-            top: 20,
-            right: 20,
-            left: 20,
-            bottom: 20,
-          }}
-          key={key}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="year" tick={<CustomizedAxisTick />} />
-          <YAxis />
-          <Tooltip />
-          <Legend
-            // onMouseEnter={handleMouseEnter}
-            // onMouseLeave={handleMouseLeave}
-            iconSize={25}
-            iconType="rect"
-            wrapperStyle={{ fontWeight: "600" }}
-            verticalAlign="top"
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+          mb: 2,
+        }}
+      >
+        <FormControl sx={{ mb: 3, width: "25ch" }} variant="outlined">
+          <InputLabel id="demo-select-small">期數</InputLabel>
+          <OutlinedInput
+            label="期數"
+            type="number"
+            onChange={handlePeriodChange}
+            value={period}
           />
-          {location.map((l, index) => (
-            <Bar key={index} dataKey={l.name} fill={THEME[index]} />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+        </FormControl>
+        <ToggleButtonGroup
+          value={showType}
+          onChange={(_, newV) => {
+            if (newV) {
+              setShowType(newV);
+            }
+          }}
+          sx={{ position: "relative", right: 0 }}
+          exclusive
+        >
+          <ToggleButton value="杯數佔比">杯數佔比</ToggleButton>
+          <ToggleButton value="金額佔比">金額佔比</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+          position: "relative",
+        }}
+      >
+        <Typography variant="h6" fontWeight={600} sx={{ ml: 6 }}>
+          {showType}
+        </Typography>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            width={500}
+            height={300}
+            data={bars.data}
+            margin={{
+              top: 20,
+              right: 20,
+              left: 20,
+              bottom: 20,
+            }}
+            key={key}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="year" tick={<CustomizedAxisTick />} />
+            <YAxis />
+            <Tooltip />
+            <Legend
+              iconSize={25}
+              iconType="rect"
+              wrapperStyle={{ fontWeight: "600" }}
+              verticalAlign="top"
+              onClick={點按圖例}
+            />
+            {bars.bar.map((l, index) => (
+              <Bar
+                key={index}
+                dataKey={l.name}
+                fill={THEME[index]}
+                hide={l.hide}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
     </div>
   );
 };
