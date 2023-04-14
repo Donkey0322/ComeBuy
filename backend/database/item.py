@@ -28,7 +28,7 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
     sql = """
         select  a.date, st.name as location, d.name as drink, a.price, a.amount, 
                 st.price as total_price, st.amount as total_amount,
-                round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion
+                round(a.price * 1.0 / st.price, 4) as price_proportion, round(a.amount * 1.0 /st.amount,4) as amount_proportion
         from (
             select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
                 from %s a
@@ -78,7 +78,7 @@ async def bar(data: object, case: str, case_table: str, time: str, table_query: 
     select  T.name as location, T.start_date, T.end_date, T.drink,
             sum(T.price) as price, sum(T.amount) as amount,
             T.total_price, T.total_amount,
-            round(sum(T.price)*100/T.total_price, 2) as price_proportion, round(sum(T.amount)*100/T.total_amount, 2) as amount_proportion
+            round(sum(T.price) * 100.00 /T.total_price, 2) as price_proportion, round(sum(T.amount)* 100.00/T.total_amount, 2) as amount_proportion
     from(
         select st.name as name, st.start_date, st.end_date, d.name as drink, a.price, a.amount,
                case

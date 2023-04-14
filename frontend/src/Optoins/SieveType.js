@@ -24,7 +24,7 @@ const SieveType = () => {
     購買方式: { focused: false },
     品項: { focused: false, child: <Beverage />, image: "drink" },
     // 口味: { focused: false },
-    甜度: { focused: false, child: <Sweet /> },
+    甜度: { focused: false, child: <Sweet />, image: "sweet" },
     冰塊: { focused: false, child: <Ice />, image: "ice" },
     加料: { focused: false },
   });
@@ -68,7 +68,12 @@ const SieveType = () => {
                 width={sieveType[s].focused ? 32 : 28}
               />
             )}
-            <ListItemText sx={{ ml: 1 }}>{s}</ListItemText>
+            <ListItemText
+              sx={{ ml: 1 }}
+              primaryTypographyProps={{ fontWeight: 600 }}
+            >
+              {s}
+            </ListItemText>
           </ListItemButton>
           <Collapse
             in={Boolean(sieveType[s].focused && sieveType[s].child)}

@@ -27,7 +27,7 @@ const ConditionProvider = (props) => {
       },
     ],
     method: [],
-    beverage: ["海神"],
+    beverage: [{ name: "海神", category: "原葉鮮萃茶" }],
   });
   const [systemState, setSystemState] = useState({});
   const [DATA, SETDATA] = useState("");
@@ -48,17 +48,23 @@ const ConditionProvider = (props) => {
     }));
   };
 
-  const addBeverageCondition = (name) => {
+  const addBeverageCondition = (name, category) => {
     setCondition((prev) => ({
       ...prev,
-      beverage: [...prev.beverage, name],
+      beverage: prev.beverage.concat(
+        Array.isArray(name)
+          ? name.map((n) => ({ name: n, category }))
+          : [{ name, category }]
+      ),
     }));
   };
 
   const deleteBeverageCondition = (name) => {
     setCondition((prev) => ({
       ...prev,
-      beverage: prev.beverage.filter((b) => b !== name),
+      beverage: prev.beverage.filter((b) =>
+        Array.isArray(name) ? !name.some((e) => b.name === e) : b.name !== name
+      ),
     }));
   };
 
