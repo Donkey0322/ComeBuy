@@ -90,8 +90,9 @@ async def bar_item(period: int = Body(..., embed=True)):
         for j in period_date:
             if j[0] <= i[1] <= j[1]:
                 i[1] = j[0]
-                i[2] = j[1]             
-    keys = ['stores', 'start_date', 'end_date', 'drink', 'price', 'amount','total_price', 'total_amount', 'price_proportion', 'amount_proportion']
+                i[2] = j[1]
+    keys = ['location', 'start_date', 'end_date', 'drink', 'price', 'amount',
+            'total_price', 'total_amount', 'price_proportion', 'amount_proportion']
 
     result = []
     for i in record_list:

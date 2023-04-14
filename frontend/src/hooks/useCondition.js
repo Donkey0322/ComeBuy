@@ -4,6 +4,7 @@ import { getConst } from "../middleware";
 const ConditionContext = createContext({
   condition: {},
   DATA: {},
+  systemState: {},
   addLocationCondtion: () => {},
   deleteLocationCondition: () => {},
   addBeverageCondition: () => {},
@@ -13,10 +14,22 @@ const ConditionContext = createContext({
 const ConditionProvider = (props) => {
   const [condition, setCondition] = useState({
     time: {},
-    location: [],
+    location: [
+      {
+        name: "新店光明店",
+        level: "store",
+        route: ["北區", "新北市", "新店區"],
+      },
+      {
+        name: "花蓮中山店",
+        level: "store",
+        route: ["東區", "花蓮縣", "花蓮市"],
+      },
+    ],
     method: [],
-    beverage: [],
+    beverage: ["海神"],
   });
+  const [systemState, setSystemState] = useState({});
   const [DATA, SETDATA] = useState("");
 
   const addLocationCondtion = (name, level, route) => {
@@ -67,6 +80,8 @@ const ConditionProvider = (props) => {
       value={{
         condition,
         DATA,
+        systemState,
+        setSystemState,
         setCondition,
         addLocationCondtion,
         deleteLocationCondition,
