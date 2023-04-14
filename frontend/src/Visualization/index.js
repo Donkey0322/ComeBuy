@@ -36,7 +36,7 @@ export default function LabTabs() {
         end_date: moment(condition.time.date.end.toISOString()).format(
           "YYYY-MM-DD"
         ),
-        drink: condition.beverage[0],
+        drink: condition.beverage[0].name,
       };
       if (
         moment(condition.time.time.end.toISOString()).format("HH:mm") !==

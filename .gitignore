@@ -6,3 +6,4 @@ package.json
 **/yarn.lock
 db_data/
 **/__pycache__/
+**/*.pptx

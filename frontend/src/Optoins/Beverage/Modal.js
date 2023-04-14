@@ -1,4 +1,4 @@
-import React, { useState } from "react"; //useEffect,
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ListItem,
@@ -7,7 +7,6 @@ import {
   Toolbar,
   IconButton,
   Typography,
-  Slide,
   Box,
   ListItemText,
   Divider,
@@ -25,26 +24,100 @@ const Menu = styled.div`
   column-gap: 60px;
 `;
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
 const DistrictModal = ({ handleModalClose }) => {
   const {
     deleteBeverageCondition,
     addBeverageCondition,
     DATA: { 飲品: DATA },
+    condition: { beverage },
   } = useCondition();
 
-  const handleBeverageCheck = (name) => (e) => {
-    if (e.target.checked) {
-      addBeverageCondition(name);
+  const checkCheckedOrIndeterminate = (object) => {
+    let temp = { ...object };
+    for (const category of Object.keys(temp)) {
+      temp[category].checked = Object.values(temp[category].beverages).every(
+        (e) => e
+      );
+      temp[category].indeterminate =
+        Object.values(temp[category].beverages).some((e) => e) &&
+        !Object.values(temp[category].beverages).every((e) => e);
+    }
+    return temp;
+  };
+
+  const dataFormatProcessing = (rawData, chosen) => {
+    let result = Object.keys(rawData).reduce((acc, curr) => {
+      acc[curr] = {
+        beverages: rawData[curr].reduce((accb, currb) => {
+          accb[currb] = chosen.some((e) => e.name === currb);
+          return accb;
+        }, {}),
+      };
+      return acc;
+    }, {});
+    return checkCheckedOrIndeterminate(result);
+  };
+  const [beverages, setBeverages] = useState(
+    dataFormatProcessing(DATA, beverage)
+  );
+
+  const handleBeverageCheck = (name, category) => (e) => {
+    const { checked } = e.target;
+    if (checked) {
+      addBeverageCondition(name, category);
     } else {
       deleteBeverageCondition(name);
     }
+    setBeverages((prev) =>
+      checkCheckedOrIndeterminate({
+        ...prev,
+        [category]: {
+          ...prev[category],
+          beverages: {
+            ...prev[category].beverages,
+            [name]: checked,
+          },
+        },
+      })
+    );
   };
 
-  const handleCategoryCheck = (name) => (e) => {};
+  useEffect(() => {
+    setBeverages(dataFormatProcessing(DATA, beverage));
+  }, []);
+  /*
+  '冷泡茶': {
+    checked: false,
+    beverages: { '四季春(冷泡茶)': false, '蜜香紅茶(冷泡茶)': false, '東方美人(冷泡茶)': false }
+  }
+  */
+
+  const handleCategoryCheck = (category) => (e) => {
+    const { checked } = e.target;
+    if (checked) {
+      addBeverageCondition(
+        Object.keys(beverages[category].beverages),
+        category
+      );
+    } else {
+      deleteBeverageCondition(Object.keys(beverages[category].beverages));
+    }
+    setBeverages((prev) =>
+      checkCheckedOrIndeterminate({
+        ...prev,
+        [category]: {
+          ...prev[category],
+          beverages: Object.keys(prev[category].beverages).reduce(
+            (acc, curr) => {
+              acc[curr] = checked;
+              return acc;
+            },
+            {}
+          ),
+        },
+      })
+    );
+  };
 
   return (
     <>
@@ -64,7 +137,7 @@ const DistrictModal = ({ handleModalClose }) => {
       <DialogContent>
         <Box sx={{ height: "60vh", display: "flex" }}>
           <Menu>
-            {Object.keys(DATA).map((category, c_index) => (
+            {Object.keys(beverages).map((category, c_index) => (
               <Box sx={{ minWidth: "120px" }} key={c_index}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography
@@ -73,16 +146,25 @@ const DistrictModal = ({ handleModalClose }) => {
                   >
                     {category}
                   </Typography>
-                  <Checkbox />
+                  <Checkbox
+                    checked={beverages[category].checked}
+                    indeterminate={beverages[category].indeterminate}
+                    onClick={handleCategoryCheck(category)}
+                  />
                 </Box>
                 <Divider />
                 <List>
-                  {DATA[category].map((b, b_index) => (
-                    <ListItem disablePadding key={b_index}>
-                      <ListItemText primary={b} sx={{ flexGrow: 1 }} />
-                      <Checkbox onClick={handleBeverageCheck(b)} />
-                    </ListItem>
-                  ))}
+                  {Object.keys(beverages[category].beverages).map(
+                    (b, b_index) => (
+                      <ListItem disablePadding key={b_index}>
+                        <ListItemText primary={b} sx={{ flexGrow: 1 }} />
+                        <Checkbox
+                          onClick={handleBeverageCheck(b, category)}
+                          checked={beverages[category].beverages[b]}
+                        />
+                      </ListItem>
+                    )
+                  )}
                 </List>
               </Box>
             ))}
