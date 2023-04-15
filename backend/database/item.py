@@ -29,7 +29,7 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
     sql = """
         select  a.date, st.name as location, d.name as drink, a.price, a.amount, 
                 st.price as total_price, st.amount as total_amount,
-                round(a.price*1.0/st.price, 4) as price_proportion, round(a.amount*1.0/st.amount,4) as amount_proportion
+                round(a.price*1.0/st.price, 4) as price_proportion, round(a.amount*1.0/st.amount, 4) as amount_proportion
         from (
             select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
                 from %s a
@@ -172,11 +172,11 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
         str(start_date),
         str(end_date),
     )
-    sql = '''
+    sql='''
     select  T.name as location, T.drink, T.year, sum(T.price) as price, sum(T.amount) as amount,
             T.total_price, T.total_amount,
-            round(sum(T.price)*100.0/T.total_price, 4) as price_proportion,
-            round(sum(T.amount)*100.0/T.total_amount, 4) as amount_proportion
+            round(sum(T.price)*100.0/T.total_price, 2) as price_proportion,
+            round(sum(T.amount)*100.0/T.total_amount, 2) as amount_proportion
     from(
         select  st.name as name, d.name as drink, st.year, a.date, a.price, a.amount,
                 case
