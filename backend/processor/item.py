@@ -17,17 +17,16 @@ def make_global(*args, **kwargs):
 
 
 class SearchInput(BaseModel):
-    start_date: date = None
-    end_date: date = None
-    start_hour: int = None
-    end_hour: int = None
-    counties: List[str] = None
-    districts: List[str] = None
-    regions: List[str] = None
-    stores: List[str] = None
-    drink: str
-
-
+    start_date: date=None 
+    end_date: date=None 
+    start_hour: int=None
+    end_hour: int=None
+    counties: List[str]=None
+    districts: List[str]=None
+    regions: List[str]=None
+    stores: List[str]=None
+    drink: List[str]=None
+    
 @router.post('/search_item')
 async def get_item(data: SearchInput):
     if (data.start_date is None):
@@ -91,9 +90,8 @@ async def bar_item(period: int = Body(..., embed=True)):
             if j[0] <= i[1] <= j[1]:
                 i[1] = j[0]
                 i[2] = j[1]
-    keys = ['location', 'start_date', 'end_date', 'drink', 'price', 'amount',
-            'total_price', 'total_amount', 'price_proportion', 'amount_proportion']
-
+  
+    keys = ['location', 'start_date', 'end_date', 'drink', 'price', 'amount','total_price', 'total_amount', 'price_proportion', 'amount_proportion']
     result = []
     for i in record_list:
         D = dict(zip(keys, i))
