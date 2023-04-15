@@ -73,7 +73,7 @@ const Index = () => {
   };
 
   return (
-    <Box width={"100%"}>
+    <Box>
       <Button sx={{ ml: -1 }} size="large" onClick={() => setOpen(true)}>
         全台
       </Button>

@@ -12,7 +12,6 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StoreIcon from "@mui/icons-material/Store";
-import { useCondition } from "../../hooks/useCondition";
 
 const Recusive_Component = ({ DATA_INDEX, data, handle, AllClick }) => {
   if (data[Object.keys(data)[0]].chosen === undefined) {

@@ -10,34 +10,24 @@ import {
 import Location from "./Location";
 import Time from "./Time";
 import Beverage from "./Beverage";
+import Ice from "./Ice";
+import Sweet from "./Sweet";
 
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
-    時間: { focused: false, child: <Time /> },
+    時間: { focused: false, child: <Time />, image: "time" },
     地區: {
       focused: false,
       child: <Location />,
+      image: "location",
     },
     購買方式: { focused: false },
-    品項: { focused: false, child: <Beverage /> },
-    口味: { focused: false },
+    品項: { focused: false, child: <Beverage />, image: "drink" },
+    // 口味: { focused: false },
+    甜度: { focused: false, child: <Sweet />, image: "sweet" },
+    冰塊: { focused: false, child: <Ice />, image: "ice" },
     加料: { focused: false },
   });
-
-  // useEffect(() => {
-  //   setSieveType((prev) => ({
-  //     ...prev,
-  //     品項: {
-  //       ...prev.品項,
-  //       child: (
-  //         <Beverage
-  //           open={prev.品項.focused}
-  //           handleModalClose={handleBeverageClose()}
-  //         />
-  //       ),
-  //     },
-  //   }));
-  // }, [sieveType.品項.focused]);
 
   const handleSieveClick = (name) => () => {
     setSieveType((prev) => ({
@@ -45,15 +35,6 @@ const SieveType = () => {
       [name]: { ...prev[name], focused: !prev[name].focused },
     }));
   };
-
-  // const handleBeverageClose =
-  //   (name = "品項") =>
-  //   () => {
-  //     setSieveType((prev) => ({
-  //       ...prev,
-  //       [name]: { ...prev[name], focused: !prev[name].focused },
-  //     }));
-  //   };
 
   return (
     <List
@@ -65,7 +46,6 @@ const SieveType = () => {
         bgcolor: "background.paper",
       }}
       component="nav"
-      aria-labelledby="nested-list-subheader"
       subheader={
         <ListSubheader component="div" id="nested-list-subheader">
           篩選條件
@@ -74,8 +54,26 @@ const SieveType = () => {
     >
       {Object.keys(sieveType).map((s, index) => (
         <div key={index}>
-          <ListItemButton key={index} onClick={handleSieveClick(s)}>
-            <ListItemText primary={s} />
+          <ListItemButton
+            key={index}
+            onClick={handleSieveClick(s)}
+            sx={{ display: "flex", alignItems: "center" }}
+          >
+            {sieveType[s].image && (
+              <img
+                src={require(`./assets/${sieveType[s].image}.${
+                  sieveType[s].focused ? "gif" : "png"
+                }`)}
+                alt=""
+                width={sieveType[s].focused ? 32 : 28}
+              />
+            )}
+            <ListItemText
+              sx={{ ml: 1 }}
+              primaryTypographyProps={{ fontWeight: 600 }}
+            >
+              {s}
+            </ListItemText>
           </ListItemButton>
           <Collapse
             in={Boolean(sieveType[s].focused && sieveType[s].child)}

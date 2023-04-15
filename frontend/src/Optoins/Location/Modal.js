@@ -9,7 +9,6 @@ import {
   Box,
   InputBase,
 } from "@mui/material";
-import LOCATION from "./location.json";
 import Recursive_Component from "./Recursive_Component";
 import { useCondition } from "../../hooks/useCondition";
 import { styled, alpha } from "@mui/material/styles";
@@ -22,25 +21,6 @@ const INDEXFORM = {
   3: "district",
   4: "store",
 };
-
-let ALLSTORE = [];
-for (const r of Object.keys(LOCATION.全台)) {
-  for (const c of Object.keys(LOCATION.全台[r])) {
-    if (LOCATION.全台[r][c]) {
-      for (const d of Object.keys(LOCATION.全台[r][c])) {
-        if (LOCATION.全台[r][c][d]) {
-          for (const s of LOCATION.全台[r][c][d]) {
-            ALLSTORE.push([r, c, d, s]);
-          }
-        } else {
-          break;
-        }
-      }
-    } else {
-      break;
-    }
-  }
-}
 
 function recursive_set(type, data, ...route) {
   if (route.length === 1) {
@@ -147,10 +127,33 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Modal({ handleModalClose }) {
+  let ALLSTORE = [];
+  const {
+    DATA: { 全台: DATA },
+  } = useCondition();
+
+  for (const r of Object.keys(DATA)) {
+    for (const c of Object.keys(DATA[r])) {
+      if (DATA[r][c]) {
+        for (const d of Object.keys(DATA[r][c])) {
+          if (DATA[r][c][d]) {
+            for (const s of DATA[r][c][d]) {
+              ALLSTORE.push([r, c, d, s]);
+            }
+          } else {
+            break;
+          }
+        }
+      } else {
+        break;
+      }
+    }
+  }
+
   const { condition, addLocationCondtion, deleteLocationCondition } =
     useCondition();
   const [location, setLocation] = useState(
-    recursive_reduce(LOCATION.全台, condition.location)
+    recursive_reduce(DATA, condition.location)
   );
   const [searchWord, setSearchWord] = useState("");
   const [currentRoutes, setCurrentRoutes] = useState(ALLSTORE);
@@ -179,7 +182,7 @@ export default function Modal({ handleModalClose }) {
 
   useEffect(() => {
     setLocation((prev) =>
-      recursive_reduce(LOCATION.全台, condition.location, prev, searchingLimit)
+      recursive_reduce(DATA, condition.location, prev, searchingLimit)
     );
   }, [condition.location]); //已選擇改變時，會藉機改變所有列的狀態
 
@@ -248,7 +251,7 @@ export default function Modal({ handleModalClose }) {
           );
         setSearchingLimit(limit);
         setLocation((prev) =>
-          recursive_reduce(LOCATION.全台, condition.location, prev, limit)
+          recursive_reduce(DATA, condition.location, prev, limit)
         );
         setSearchWord("");
       }
