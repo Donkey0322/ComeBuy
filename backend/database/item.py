@@ -9,10 +9,10 @@ from . import pool_handler
 
 async def get(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str]) -> object: 
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     params = (
-        case,
         table_query,
         case_table,
         case,
@@ -21,14 +21,14 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
         str(data.end_date),
         table_query,
         case,
-        data.drink,
+        drink_str,
         str(data.start_date),
         str(data.end_date),
     )
     sql = """
-        select  a.date, st.name as %s, d.name as drink, a.price, a.amount, 
+        select  a.date, st.name as location, d.name as drink, a.price, a.amount, 
                 st.price as total_price, st.amount as total_amount,
-                round(a.price*100.00/st.price, 2) as price_proportion, round(a.amount*100.00/st.amount,2) as amount_proportion
+                round(a.price*1.0000/st.price, 4) as price_proportion, round(a.amount*1.0000/st.amount, 4) as amount_proportion
         from (
             select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
                 from %s a
@@ -38,7 +38,7 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
             ) as st
         join %s a on st.id = a.%s
         join drinks d on d.id = a.drink
-        where d.name = '%s' and a.date between '%s' and '%s'{}
+        where d.name in %s and a.date between '%s' and '%s'{}
         order by st.name
     """
     if time == 'hour':
@@ -47,6 +47,7 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
     else:
         sql = sql.format("")
     try:
+        print(sql % params)
         result = await pool_handler.pool.fetch(sql % params)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
@@ -55,11 +56,11 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
 
 async def bar(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str], interval:str, period:int) -> object: 
     start_date = data.start_date - timedelta(days=(interval+1)*(period-1))
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     params = (
-        case,
         str(data.end_date),
         str(data.end_date),
         table_query,
@@ -71,15 +72,15 @@ async def bar(data: object, case: str, case_table:str, time:str, table_query:str
         interval+1,
         table_query,
         case,
-        data.drink,
+        drink_str,
         str(start_date),
         str(data.end_date),
     )
     sql = '''
-    select  T.name as %s, T.start_date, T.end_date, T.drink,
+    select  T.name as location, T.start_date, T.end_date, T.drink,
             sum(T.price) as price, sum(T.amount) as amount,
             T.total_price, T.total_amount,
-            round(sum(T.price)*100/T.total_price, 2) as price_proportion, round(sum(T.amount)*100/T.total_amount, 2) as amount_proportion
+            round(sum(T.price)/T.total_price, 4) as price_proportion, round(sum(T.amount)/T.total_amount, 4) as amount_proportion
     from(
         select st.name as name, st.start_date, st.end_date, d.name as drink, a.price, a.amount,
                case
@@ -110,7 +111,7 @@ async def bar(data: object, case: str, case_table:str, time:str, table_query:str
         ) as st
         join %s a on a.%s = st.id
         join drinks d on a.drink = d.id
-        where d.name = '%s' 
+        where d.name in %s 
               and a.date between '%s' and '%s' {}
         order by st.name) as T
     where T.total_price is not null 
@@ -137,10 +138,10 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
     end_year = int(data.end_date.strftime("%Y"))
     start_year = int(end_year)-year+1
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     params = (
-        case,
         str(start_date),
         str(end_date),
         str(start_date),
@@ -164,7 +165,7 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
         case,
         table_query,
         case,
-        data.drink,
+        drink_str,
         str(start_date),
         str(end_date),
         str(start_date),
@@ -173,10 +174,10 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
         str(end_date),
     )
     sql='''
-    select  T.name as %s, T.drink, T.year, sum(T.price) as price, sum(T.amount) as amount,
+    select  T.name as location, T.drink, T.year, sum(T.price) as price, sum(T.amount) as amount,
             T.total_price, T.total_amount,
-            round(sum(T.price)*100.00/T.total_price, 2) as price_proportion,
-            round(sum(T.amount)*100.00/T.total_amount, 2) as amount_proportion
+            round(sum(T.price)*1.0000/T.total_price, 4) as price_proportion,
+            round(sum(T.amount)*1.0000/T.total_amount, 4) as amount_proportion
     from(
         select  st.name as name, d.name as drink, st.year, a.date, a.price, a.amount,
                 case
@@ -248,7 +249,7 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
             )as st
         join %s a on st.id = a.%s
         join drinks d on a.drink = d.id
-        where d.name = '%s'
+        where d.name in %s
             and case
                 when '%s' > '%s'
                     then to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
