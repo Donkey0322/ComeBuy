@@ -7,7 +7,8 @@ import asyncpg
 
 from . import pool_handler
 
-async def get(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str]) -> object: 
+
+async def get(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str]) -> object:
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
     drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     if(time == 'hour'):
@@ -54,11 +55,11 @@ async def get(data: object, case: str, case_table:str, time:str, table_query:str
     return result
 
 
-async def bar(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str], interval:str, period:int) -> object: 
+async def bar(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], interval: str, period: int) -> object:
     start_date = data.start_date - timedelta(days=(interval+1)*(period-1))
     drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    if(time == 'hour'):
+    if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     params = (
         str(data.end_date),
@@ -128,11 +129,9 @@ async def bar(data: object, case: str, case_table:str, time:str, table_query:str
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
     return result
-    
-    
-    
-    
-async def line(data: object, case: str, case_table:str, time:str, table_query:str, place:List[str], year:int) -> object: 
+
+
+async def line(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], year: int) -> object:
     start_date = data.start_date.strftime("%m-%d")
     end_date = data.end_date.strftime("%m-%d")
     end_year = int(data.end_date.strftime("%Y"))
@@ -278,6 +277,3 @@ async def line(data: object, case: str, case_table:str, time:str, table_query:st
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
     return result
-    
-
-        

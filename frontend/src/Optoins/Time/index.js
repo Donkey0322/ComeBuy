@@ -36,7 +36,10 @@ export default function ResponsiveDateRangePickers() {
           start: dayjs(dayjs().format().slice(0, 11) + "T00:00"),
           end: dayjs(dayjs().format().slice(0, 11) + "T23:59"),
         },
-        date: { start: dayjs().subtract(6, "day"), end: dayjs() },
+        date: {
+          start: dayjs().subtract(7, "day"),
+          end: dayjs().subtract(1, "day"),
+        },
       },
     }));
   };
@@ -93,6 +96,12 @@ export default function ResponsiveDateRangePickers() {
               onChange={handleTimeChange("start")}
               label={"開始時間"}
               value={condition.time.time?.start ?? null}
+              // views={
+              //   condition.time.time?.start.$H === 23
+              //     ? ["hours", "minutes"]
+              //     : ["hours"]
+              // }
+              minutesStep={condition.time.time?.start.$H === 23 ? 59 : 60}
             />
             <p>-</p>
             <TimePicker
@@ -101,6 +110,18 @@ export default function ResponsiveDateRangePickers() {
               onChange={handleTimeChange("end")}
               minTime={condition.time.time?.start ?? null}
               value={condition.time.time?.end ?? null}
+              // views={
+              //   condition.time.time?.end.$H === 23
+              //     ? ["hours", "minutes"]
+              //     : ["hours"]
+              // }
+              // onAccept={()=>{}}
+              // shouldDisableTime={(value, view) =>
+              //   view === "minutes" &&
+              //   value.hour() !== 23 &&
+              //   value.minute() !== 0
+              // }
+              minutesStep={condition.time.time?.end.$H === 23 ? 59 : 60}
             />
           </Stack>
         </Zoom>
