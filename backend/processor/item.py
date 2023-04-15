@@ -73,10 +73,8 @@ async def bar_item(period: int = Body(..., embed=True)):
     period_date = []
 
     for i in range(period):
-        period_start = global_data['data'].start_date - \
-            timedelta(days=(interval+1)*i)
-        period_end = global_data['data'].end_date - \
-            timedelta(days=(interval+1)*i)
+        period_start = global_data['data'].start_date - timedelta(days=(interval+1)*i)
+        period_end = global_data['data'].end_date - timedelta(days=(interval+1)*i)
         period_date.append([period_start, period_end])
 
     records = await db.item.bar(data=global_data['data'], case=global_data['case'],
