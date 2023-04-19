@@ -40,7 +40,7 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
         join %s a on st.id = a.%s
         join drinks d on d.id = a.drink
         where d.name in %s and a.date between '%s' and '%s'{}
-        order by st.name
+        order by st.name, d.name, a.date
     """
     if time == 'hour':
         sql = sql.format("and a.hour >= %s and a.hour < %s")
