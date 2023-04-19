@@ -41,11 +41,11 @@ const LineChartAnalysis = ({ data, THEME }) => {
       if (index !== 0 && index !== year + 2) {
         temp = rawData?.reduce((acc, curr) => {
           if (curr.year === y) {
-            acc[curr.location] =
+            acc[`${curr.location} ${curr.drink}`] =
               curr[
                 type === "杯數佔比" ? "amount_proportion" : "price_proportion"
               ];
-            location.add(curr.location);
+            location.add(`${curr.location} ${curr.drink}`);
           }
           return acc;
         }, temp);

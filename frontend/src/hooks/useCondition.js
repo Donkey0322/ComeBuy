@@ -27,7 +27,10 @@ const ConditionProvider = (props) => {
       },
     ],
     method: [],
-    beverage: [{ name: "海神", category: "原葉鮮萃茶" }],
+    beverage: [
+      { name: "海神", category: "原葉鮮萃茶" },
+      { name: "鮮萃大麥紅茶", category: "原葉鮮萃茶" },
+    ],
   });
   const [systemState, setSystemState] = useState({});
   const [DATA, SETDATA] = useState("");
