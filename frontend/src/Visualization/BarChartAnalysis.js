@@ -81,11 +81,11 @@ const BarChartAnalysis = ({ data, THEME }) => {
         };
         temp = rawData?.reduce((acc, curr) => {
           if (curr.start_date === temp.year.split(" ")[0]) {
-            acc[curr.location] =
+            acc[`${curr.location} ${curr.drink}`] =
               curr[
                 type === "杯數佔比" ? "amount_proportion" : "price_proportion"
               ];
-            location.add(curr.location);
+            location.add(`${curr.location} ${curr.drink}`);
           }
           return acc;
         }, temp);
@@ -215,6 +215,7 @@ const BarChartAnalysis = ({ data, THEME }) => {
                 dataKey={l.name}
                 fill={THEME[index]}
                 hide={l.hide}
+                stackId={l.name.split(" ")[0]}
               />
             ))}
           </BarChart>

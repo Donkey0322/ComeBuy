@@ -12,10 +12,55 @@ import {
   Divider,
   Checkbox,
   DialogContent,
+  InputBase,
 } from "@mui/material";
+import { styled as MuiStyled, alpha } from "@mui/material/styles";
 import { useCondition } from "../../hooks/useCondition";
 import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from "@mui/icons-material/Search";
 import styled from "styled-components";
+
+const Search = MuiStyled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(1),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = MuiStyled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = MuiStyled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      width: "12ch",
+      "&:focus": {
+        width: "20ch",
+      },
+    },
+  },
+}));
 
 const Menu = styled.div`
   display: flex;
@@ -31,6 +76,8 @@ const DistrictModal = ({ handleModalClose }) => {
     DATA: { 飲品: DATA },
     condition: { beverage },
   } = useCondition();
+  const [searchWord, setSearchWord] = useState("");
+  const [searchingLimit, setSearchingLimit] = useState(undefined);
 
   const checkCheckedOrIndeterminate = (object) => {
     let temp = { ...object };
@@ -119,17 +166,65 @@ const DistrictModal = ({ handleModalClose }) => {
     );
   };
 
+  const handleSearchEnter = (e) => {
+    // if (e.key === "Enter") {
+    //   let tmp = [];
+    //   for (const store of ALLSTORE) {
+    //     if (store.some((e) => e.includes(searchWord))) {
+    //       tmp.push(store);
+    //     }
+    //   }
+    //   setCurrentRoutes(tmp);
+    //   if (tmp.length) {
+    //     const limit = tmp
+    //       .map((m) => m.map((t, index) => ({ name: t, index })))
+    //       .flat()
+    //       .filter(
+    //         (item, index, inputArray) =>
+    //           inputArray.findIndex(
+    //             (i) => i.name === item.name && i.index === item.index
+    //           ) === index
+    //       );
+    //     setSearchingLimit(limit);
+    //     setLocation((prev) =>
+    //       recursive_reduce(DATA, condition.location, prev, limit)
+    //     );
+    //     setSearchWord("");
+    //   }
+    // }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchWord(e.target.value);
+  };
+
   return (
     <>
-      <AppBar sx={{ position: "relative", backgroundColor: "#099B91" }}>
-        <Toolbar>
+      <AppBar sx={{ position: "static", backgroundColor: "#099B91" }}>
+        <Toolbar sx={{ position: "relative" }}>
           <IconButton edge="start" color="inherit" onClick={handleModalClose}>
             <CloseIcon />
           </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+          <Typography sx={{ mr: 2 }} variant="h6" component="div" noWrap>
             品項
           </Typography>
-          <Button autoFocus color="inherit" onClick={handleModalClose}>
+          <Search onKeyDown={handleSearchEnter}>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search…"
+              inputProps={{ "aria-label": "search" }}
+              value={searchWord}
+              onChange={handleSearchChange}
+            />
+          </Search>
+          <Button
+            autoFocus
+            color="inherit"
+            onClick={handleModalClose}
+            sx={{ position: "absolute", right: 0, mr: 2 }}
+          >
             save
           </Button>
         </Toolbar>
