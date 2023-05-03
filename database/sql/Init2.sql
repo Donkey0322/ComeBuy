@@ -396,3 +396,36 @@ insert into stores(region, county, district, name) values (5, 12, 61, '澎湖三
 insert into stores(region, county, district, name) values (5, 12, 61, '澎湖中華(研磨咖啡)店');
 insert into stores(region, county, district, name) values (5, 12, 61, '澎湖中正(研磨咖啡)店');
 insert into stores(region, county, district, name) values (5, 13, 62, '金門復興店');
+
+insert into toppings(name) values ('珍珠');
+insert into toppings(name) values ('椰果');
+insert into toppings(name) values ('布丁');
+insert into toppings(name) values ('新雙Q');
+insert into toppings(name) values ('小芋圓');
+insert into toppings(name) values ('荔枝凍');
+insert into toppings(name) values ('仙草凍');
+insert into toppings(name) values ('小紫蘇');
+insert into toppings(name) values ('鬥陣');
+insert into toppings(name) values ('愛玉');
+insert into toppings(name) values ('迷你珍珠');
+insert into toppings(name) values ('蘆薈');
+insert into toppings(name) values ('粉條');
+insert into toppings(name) values ('紫米');
+insert into toppings(name) values ('寒天晶球');
+insert into toppings(name) values ('雙Q條');
+insert into toppings(name) values ('搖果樂');
+
+insert into tastes(name) values ('換奶綠');
+insert into tastes(name) values ('去料');
+insert into tastes(name) values ('去籽');
+insert into tastes(name) values ('多籽');
+insert into tastes(name) values ('少酸');
+insert into tastes(name) values ('多酸');
+insert into tastes(name) values ('少奶');
+insert into tastes(name) values ('多奶');
+insert into tastes(name) values ('芋');
+insert into tastes(name) values ('粉');
+insert into tastes(name) values ('紅茶');
+insert into tastes(name) values ('綠茶');
+insert into tastes(name) values ('改小珍');
+insert into tastes(name) values ('改鬥陣');
