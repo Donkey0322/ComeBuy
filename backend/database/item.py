@@ -10,80 +10,68 @@ from . import pool_handler
 
 async def get(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str]) -> object:
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink) 
+    topping_str = (f"('{data.toppings[0]}')" if len(data.toppings) == 1 else tuple(data.toppings)) if data.toppings else ''
+    sweet_str = (f"('{data.sweets[0]}')" if len(data.sweets) == 1 else tuple(data.sweets)) if data.sweets else ''
+    ice_str = (f"('{data.ices[0]}')" if len(data.ices) == 1 else tuple(data.ices)) if data.ices else ''
+    taste_str = (f"('{data.tastes[0]}')" if len(data.tastes) == 1 else tuple(data.tastes)) if data.tastes else ''
+    a = ['s2.name in {}'.format(sweet_str) if data.sweets else None,
+        'i.name in {}'.format(ice_str) if data.ices else None,
+        't.name in {}'.format(topping_str) if data.toppings else None,
+        't2.name in {}'.format(taste_str) if data.tastes else None]
+    q = ' or '.join([x for x in a if x is not None])
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
-    params = (
-        table_query,
-        case_table,
-        case,
-        place_str,
-        str(data.start_date),
-        str(data.end_date),
-        table_query,
-        case,
-        drink_str,
-        str(data.start_date),
-        str(data.end_date),
-    )
-    sql = """
-        select  a.date, st.name as location, d.name as drink, a.price, a.amount, 
-                st.price as total_price, st.amount as total_amount,
+    sql = f"""
+        select  a.date, st.name as location, d.name as drink,
+                {'i.name as ice,' if data.ices else ''}
+                {'s2.name as sweet,' if data.sweets else ''}
+                {'t.name as topping,' if data.toppings else ''}
+                {'t2.name as taste,' if data.tastes else ''}
+                a.price, a.amount, st.price as total_price, st.amount as total_amount,
                 round(a.price*1.0/st.price, 4) as price_proportion, round(a.amount*1.0/st.amount, 4) as amount_proportion
         from (
             select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
-                from %s a
-                join %s s on a.%s = s.id
-                where s.name in %s and a.date between '%s' and '%s' 
+                from {table_query} a
+                join {case_table} s on a.{case} = s.id
+                where s.name in {place_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}' 
                 group by s.name, s.id
             ) as st
-        join %s a on st.id = a.%s
+        join {table_query} a on st.id = a.{case}
+        {'join sweets s2 on a.sweet = s2.id' if data.sweets else ''}
+        {'join ices i on a.ice = i.id' if data.ices else ''}
+        {'join toppings t on a.topping = t.id' if data.toppings else ''}
+        {'join tastes t2 on a.taste = t2.id' if data.tastes else ''}
         join drinks d on d.id = a.drink
-        where d.name in %s and a.date between '%s' and '%s'{}
+        where d.name in {drink_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}'
+              {'and ({})'.format(q) if q else ''}
+              {'and a.hour >= {} and a.hour < {}'.format(data.start_hour, data.end_hour) if time == 'hour' else ''}
         order by st.name, d.name, a.date
     """
-    if time == 'hour':
-        sql = sql.format("and a.hour >= %s and a.hour < %s")
-        params += (data.start_hour, data.end_hour)
-    else:
-        sql = sql.format("")
     try:
-        print(sql % params)
-        result = await pool_handler.pool.fetch(sql % params)
+        result = await pool_handler.pool.fetch(sql)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
     return result
 
 
-async def bar(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], interval: str, period: int) -> object:
+async def bar(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], interval: str, period: int, key=None) -> object:
     start_date = data.start_date - timedelta(days=(interval+1)*(period-1))
     drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
+    key_str = (f"('{dict(data)[key][0]}')" if len(dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
     if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
-    params = (
-        str(data.end_date),
-        str(data.end_date),
-        table_query,
-        case_table,
-        case,
-        place_str,
-        str(start_date),
-        str(data.end_date),
-        interval+1,
-        table_query,
-        case,
-        drink_str,
-        str(start_date),
-        str(data.end_date),
-    )
-    sql = '''
+    sql = f'''
     select  T.name as location, T.start_date, T.end_date, T.drink,
+            {'T.constraint as constraint,' if key else ''}
             sum(T.price) as price, sum(T.amount) as amount,
             T.total_price, T.total_amount,
             round(sum(T.price)*100/T.total_price, 2) as price_proportion, round(sum(T.amount)*100/T.total_amount, 2) as amount_proportion
     from(
-        select st.name as name, st.start_date, st.end_date, d.name as drink, a.price, a.amount,
+        select st.name as name, st.start_date, st.end_date, d.name as drink, 
+               {'s2.name as constraint,' if key else ''}
+               a.price, a.amount,
                case
                    when a.date between st.start_date and st.end_date
                    then st.price
@@ -97,92 +85,64 @@ async def bar(data: object, case: str, case_table: str, time: str, table_query: 
         from(
             select id, name, min(date) as start_date, max(date) as end_date, sum(price) as price, sum(amount) as amount 
             from(
-                select *, (lead(date, 0, '%s') OVER (PARTITION BY name order by date) - '%s' ) * -1 as rn 
+                select *, (lead(date, 0, '{str(data.end_date)}') OVER (PARTITION BY name order by date) - '{str(data.end_date)}' ) * -1 as rn 
                 from(
                     select s.id as id, s.name as name, a.date, sum(a.price) as price, sum(a.amount) as amount
-                    from %s a
-                    join %s s on a.%s = s.id
-                    where s.name in %s 
-                          and a.date between '%s' and '%s'
+                    from {table_query} a
+                    join {case_table} s on a.{case} = s.id
+                    where s.name in {place_str} 
+                          and a.date between '{str(start_date)}' and '{str(data.end_date)}'
                     group by s.name, s.id, a.date
                     order by s.name, a.date
-                ) as st
-            ) as T
-            group by rn/%s, id, name
+                ) as f1
+            ) as f2
+            group by rn/{interval+1}, id, name
         ) as st
-        join %s a on a.%s = st.id
+        join {table_query} a on a.{case} = st.id
         join drinks d on a.drink = d.id
-        where d.name in %s 
-              and a.date between '%s' and '%s' {}
+        {'join {} s2 on a.{} = s2.id'.format(key, key[:-1]) if key else ''}
+        where d.name in {drink_str} 
+              and a.date between '{str(start_date)}' and '{str(data.end_date)}' 
+              {'and s2.name in {}'.format(key_str) if key else ''}
+              {'and a.hour >= {} and a.hour < {}'.format(data.start_hour, data.end_hour) if time == 'hour' else ''}
         order by st.name) as T
     where T.total_price is not null 
-    group by T.start_date, T.name, T.drink, T.end_date, T.total_price, T.total_amount 
+    group by T.start_date, T.name, T.drink, T.end_date, T.total_price, T.total_amount {',T.constraint' if key else ''}
     order by T.name;
     '''
-    if time == 'hour':
-        sql = sql.format("and a.hour >= %s and a.hour < %s")
-        params += (data.start_hour, data.end_hour)
-    else:
-        sql = sql.format("")
     try:
-        result = await pool_handler.pool.fetch(sql % params)
+        result = await pool_handler.pool.fetch(sql)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
     return result
 
 
-async def line(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], year: int) -> object:
+async def line(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], year: int, key=None) -> object:
     start_date = data.start_date.strftime("%m-%d")
     end_date = data.end_date.strftime("%m-%d")
     end_year = int(data.end_date.strftime("%Y"))
     start_year = int(end_year)-year+1
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
     drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
+    key_str = (f"('{dict(data)[key][0]}')" if len(dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
-    params = (
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        table_query,
-        case_table,
-        case,
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        str(end_date),
-        place_str,
-        case,
-        case,
-        table_query,
-        case,
-        drink_str,
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        str(end_date),
-        str(start_date),
-        str(end_date),
-    )
-    sql='''
-    select  T.name as location, T.drink, T.year, sum(T.price) as price, sum(T.amount) as amount,
+
+    sql=f'''
+    select  T.name as location, T.drink, T.year,
+            {'T.constraint as constraint,' if key else ''}
+            sum(T.price) as price, sum(T.amount) as amount,
             T.total_price, T.total_amount,
             round(sum(T.price)*100.0/T.total_price, 2) as price_proportion,
             round(sum(T.amount)*100.0/T.total_amount, 2) as amount_proportion
     from(
-        select  st.name as name, d.name as drink, st.year, a.date, a.price, a.amount,
+        select  st.name as name, d.name as drink, st.year, a.date,
+                {'s2.name as constraint,' if key else ''}
+                a.price, a.amount,
                 case
-                when '%s' > '%s'
+                when '{str(start_date)}' > '{str(end_date)}'
                     then case
-                            when to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
+                            when to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
                             then case
                                     when date_part('year', a.date::date) = st.year - 1
                                     then st.price
@@ -201,9 +161,9 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
                         end
                 end as total_price,
                 case
-                when '%s' > '%s'
+                when '{str(start_date)}' > '{str(end_date)}'
                     then case
-                            when to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
+                            when to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
                             then case
                                     when date_part('year', a.date::date) = st.year - 1
                                     then st.amount
@@ -224,56 +184,49 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
         from(
             select  s.id, s.name, sum(price) as price, sum(amount) as amount,
             case
-                when '%s' > '%s'
+                when '{str(start_date)}' > '{str(end_date)}'
                     then case
-                                when to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
+                                when to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
                                     then date_part('year', a.date::date) + 1
                                 else date_part('year', a.date::date)
                                 end
                     else
                             date_part('year', a.date::date)
                     end as year
-                from %s a
-                join %s s on a.%s = s.id
+                from {table_query} a
+                join {case_table} s on a.{case} = s.id
                 where case
-                        when '%s' > '%s'
-                            then to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
-                                or to_char(a.date::date, 'MM-DD') between '01-01' and '%s'
+                        when '{str(start_date)}' > '{str(end_date)}'
+                            then to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
+                                or to_char(a.date::date, 'MM-DD') between '01-01' and '{str(end_date)}'
                         else
-                            to_char(a.date::date, 'MM-DD') between '%s' and '%s'
+                            to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '{str(end_date)}'
                         end
-                and s.name in %s
-                group by year, s.id, s.name, a.%s
-                order by a.%s
+                and s.name in {place_str}
+                group by year, s.id, s.name, a.{case}
+                order by a.{case}
             )as st
-        join %s a on st.id = a.%s
+        join {table_query} a on st.id = a.{case}
         join drinks d on a.drink = d.id
-        where d.name in %s
+        {'join {} s2 on a.{} = s2.id'.format(key, key[:-1]) if key else ''}
+        where d.name in {drink_str}
+            {'and s2.name in {}'.format(key_str) if key else ''}
             and case
-                when '%s' > '%s'
-                    then to_char(a.date::date, 'MM-DD') between '%s' and '12-31'
-                        or to_char(a.date::date, 'MM-DD') between '01-01' and '%s'
+                when '{str(start_date)}' > '{str(end_date)}'
+                    then to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
+                        or to_char(a.date::date, 'MM-DD') between '01-01' and '{str(end_date)}'
                 else
-                    to_char(a.date::date, 'MM-DD') between '%s' and '%s'
+                    to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '{str(end_date)}'
                 end
-            {}
-    '''
-    if time == 'hour':
-        sql = sql.format('''and a.hour >= %s and a.hour < %s
-                )as T
-                where total_price is not null and T.year between %s and %s
-                group by T.name, T.drink, T.year, T.total_price, T.total_amount
-                order by T.name, T.drink;''')
-        params += (data.start_hour, data.end_hour, start_year, end_year)
-    else:
-        sql = sql.format('''
-                )as T
-                where total_price is not null and T.year between %s and %s
-                group by T.name, T.drink, T.year, T.total_price, T.total_amount
-                order by T.name, T.drink;''')
-        params += (start_year, end_year)
+            {'and a.hour >= {} and a.hour < {}'.format(data.start_hour, data.end_hour) if time == 'hour' else ''}
+            ) as T
+            where total_price is not null and T.year between {start_year} and {end_year}
+            group by T.name, T.drink, T.year, T.total_price, T.total_amount{',T.constraint' if key else ''}
+            order by T.name, T.drink;
+        '''
+
     try:
-        result = await pool_handler.pool.fetch(sql % params)
+        result = await pool_handler.pool.fetch(sql)
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
     return result
