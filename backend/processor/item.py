@@ -10,12 +10,6 @@ router = APIRouter(
 )
 
 
-def make_global(*args, **kwargs):
-    global_data = globals()
-    for key, value in kwargs.items():
-        global_data[key] = value
-
-
 class SearchInput(BaseModel):
     start_date: date=None 
     end_date: date=None 
@@ -26,6 +20,35 @@ class SearchInput(BaseModel):
     regions: List[str]=None
     stores: List[str]=None
     drink: List[str]=None
+    toppings: List[str]=None
+    tastes: List[str]=None
+    sweets: List[str]=None
+    ices: List[str]=None
+
+def make_global(*args, **kwargs):
+    global_data = globals()
+    for key, value in kwargs.items():
+        global_data[key] = value
+    
+def check_contain(d):
+    count = 0
+    keys = ['ices', 'sweets', 'tastes', 'toppings']  
+    for key in dict(d).keys():
+        if(key in keys):
+            if(dict(d)[key]):
+                count += 1
+            else:
+                keys.remove(key)
+    return count, keys
+
+def make_period(d, period):
+    interval = (d.end_date - d.start_date).days
+    period_date = []
+    for i in range(period):
+        period_start = d.start_date - timedelta(days=(interval+1)*i)
+        period_end = d.end_date - timedelta(days=(interval+1)*i)
+        period_date.append([period_start, period_end])
+    return interval, period_date
     
 @router.post('/search_item')
 async def get_item(data: SearchInput):
@@ -62,48 +85,75 @@ async def get_item(data: SearchInput):
     result = await db.item.get(data=global_data['data'], case=global_data['case'],
                                case_table=global_data['case_table'], time=global_data['time'],
                                table_query=global_data['table_query'], place=global_data['place'])
+    
+    if result and len(list(result[0].keys())) > 9:
+        l = [data.ices, data.sweets, data.tastes, data.toppings]
+        constraints = []
+        for sublist in l:
+            if(sublist):
+                for item in sublist:
+                    constraints.append(item)
+        record_dict = [dict(record) for record in result]
+        for row in record_dict:
+            set1 = set(row.values())
+            set2 = set(constraints)
+            intersection = set1 & set2
+            intersection = list(intersection)
+            row['constraints'] = intersection
+        keys = ['ices', 'sweets', 'tastes', 'toppings']   
+        result = [{key: record[key] for key in record.keys() if key not in keys} for record in record_dict] 
+        
     return result
 
 
 @router.post('/bar_item')
 async def bar_item(period: int = Body(..., embed=True)):
     global_data = globals()
-    interval = (global_data['data'].end_date -
-                global_data['data'].start_date).days
-    period_date = []
+    interval, period_date = make_period(global_data['data'], period)         
+    count, keys = check_contain(global_data['data'])
 
-    for i in range(period):
-        period_start = global_data['data'].start_date - timedelta(days=(interval+1)*i)
-        period_end = global_data['data'].end_date - timedelta(days=(interval+1)*i)
-        period_date.append([period_start, period_end])
+    if(count != 0):
+        records = []
+        for i in range(count):
+            record = await db.item.bar(data=global_data['data'], case=global_data['case'],
+                                        case_table=global_data['case_table'], time=global_data['time'],
+                                        table_query=global_data['table_query'], place=global_data['place'],
+                                        interval=interval, period=period, key=keys[i])
+            records.extend(record)
+    else:
+        records = await db.item.bar(data=global_data['data'], case=global_data['case'],
+                                        case_table=global_data['case_table'], time=global_data['time'],
+                                        table_query=global_data['table_query'], place=global_data['place'],
+                                        interval=interval, period=period)
 
-    records = await db.item.bar(data=global_data['data'], case=global_data['case'],
-                                case_table=global_data['case_table'], time=global_data['time'],
-                                table_query=global_data['table_query'], place=global_data['place'],
-                                interval=interval, period=period)
-
-    record_list = [list(record) for record in records]
-    for i in record_list:
+    
+    result = [dict(record) for record in records]
+    
+    for i in result:
         for j in period_date:
-            if j[0] <= i[1] <= j[1]:
-                i[1] = j[0]
-                i[2] = j[1]
+            if j[0] <= i['start_date'] <= j[1]:
+                i['start_date'] = j[0]
+                i['end_date'] = j[1]
   
-    keys = ['location', 'start_date', 'end_date', 'drink', 'price', 'amount','total_price', 'total_amount', 'price_proportion', 'amount_proportion']
-    result = []
-    for i in record_list:
-        D = dict(zip(keys, i))
-        result.append(D)
-
     return result
 
 
 @router.post('/line_item')
 async def line_item(year: int = Body(..., embed=True)):
     global_data = globals()
-    print(year)
-    result = await db.item.line(data=global_data['data'], case=global_data['case'],
-                                case_table=global_data['case_table'], time=global_data['time'],
-                                table_query=global_data['table_query'], place=global_data['place'],
-                                year=year)
+    count, keys = check_contain(global_data['data'])
+    if(count != 0):
+        result = []
+        for i in range(count):
+            record = await db.item.line(data=global_data['data'], case=global_data['case'],
+                                        case_table=global_data['case_table'], time=global_data['time'],
+                                        table_query=global_data['table_query'], place=global_data['place'],
+                                        year=year, key=keys[i])
+            result.extend(record)
+    else:
+        result = await db.item.line(data=global_data['data'], case=global_data['case'],
+                                        case_table=global_data['case_table'], time=global_data['time'],
+                                        table_query=global_data['table_query'], place=global_data['place'],
+                                        year=year)
+            
     return result
