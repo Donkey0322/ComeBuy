@@ -18,36 +18,6 @@ const items = [
     to: "/",
   },
   {
-    name: "Customers",
-    icon: <WcIcon />,
-    to: "/customers",
-  },
-  {
-    name: "Customer Service",
-    icon: <SupportAgentIcon />,
-    to: "/customer_services",
-  },
-  {
-    name: "Employees",
-    icon: <SupervisedUserCircleIcon />,
-    to: "/employees",
-  },
-  {
-    name: "Orders",
-    icon: <GradingIcon />,
-    to: "/orders",
-  },
-  {
-    name: "Products",
-    icon: <CategoryIcon />,
-    to: "/products",
-  },
-  {
-    name: "Purchases",
-    icon: <ShoppingCartIcon />,
-    to: "/purchases",
-  },
-  {
     name: "Upload",
     icon: <FileUploadIcon />,
     to: "/upload",

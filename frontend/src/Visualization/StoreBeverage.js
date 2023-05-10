@@ -1,5 +1,6 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, Chip } from "@mui/material";
+import styled from "styled-components";
 import {
   DataGrid,
   GridToolbarContainer,
@@ -27,6 +28,18 @@ const CustomToolBar = () => {
   );
 };
 
+const ConstraintsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 0.5vmin;
+  overflow-x: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+`;
+
 const levelMap = {
   region: "區域",
   county: "縣市",
@@ -49,26 +62,46 @@ const StoreBeverage = ({ data }) => {
       "飲品金額",
       "金額佔比",
       "交易日期",
+      "額外條件",
     ],
     data,
   };
 
   const TEST = DATA.data
     ? {
-        column: DATA?.label.map((m) => ({
-          field: m,
-          headerName: m,
-          flex: m.includes("日期") ? 1.8 : 1,
-          type: m.includes("日期") && "dateTime",
-          valueGetter: ({ value }) =>
-            m.includes("日期") ? new Date(value) : value,
-          valueFormatter: ({ value }) =>
-            m.includes("日期")
-              ? moment(value).format("YYYY-MM-DD")
-              : value < 1
-              ? `${(value * 100).toFixed(2)}%`
-              : value,
-        })),
+        column: DATA?.label
+          .filter((l) => l !== "額外條件" || data?.[0]?.constraints)
+          .map((m) => ({
+            field: m,
+            headerName: m,
+            flex: m.includes("額外條件") ? 1.8 : 1,
+            type: m.includes("日期") && "dateTime",
+            renderCell: ({ value }) =>
+              m === "額外條件" ? (
+                <ConstraintsContainer>
+                  {value.split(",").map((i, index) => (
+                    <Chip
+                      key={index}
+                      label={i}
+                      // color="primary"
+                      // variant="outlined"
+                    />
+                  ))}
+                </ConstraintsContainer>
+              ) : m.includes("日期") ? (
+                moment(value).format("YYYY-MM-DD")
+              ) : value < 1 ? (
+                `${(value * 100).toFixed(2)}%`
+              ) : (
+                value
+              ),
+            valueGetter: ({ value }) =>
+              m.includes("日期")
+                ? new Date(value)
+                : m === "額外條件"
+                ? value.join(",")
+                : value,
+          })),
         row: DATA?.data.map((m, index) => ({
           序號: index + 1,
           [`${levelMap[systemState?.locationLevel]}名稱`]: m.location,
@@ -80,6 +113,7 @@ const StoreBeverage = ({ data }) => {
           飲品金額: m.price,
           金額佔比: m.price_proportion,
           交易日期: m.date,
+          額外條件: m.constraints,
         })),
       }
     : "";
