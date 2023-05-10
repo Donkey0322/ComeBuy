@@ -48,6 +48,24 @@ async def get() -> object:
     except asyncpg.exceptions.UniqueViolationError:
         return "db failed"
     
+    sql = '''
+    select distinct toppings.name from toppings;
+    '''
+    try:
+        result = await pool_handler.pool.fetch(sql)
+        data['toppings'] = result
+    except asyncpg.exceptions.UniqueViolationError:
+        return "db failed"
+    
+    sql = '''
+    select distinct tastes.name from tastes;
+    '''
+    try:
+        result = await pool_handler.pool.fetch(sql)
+        data['tastes'] = result
+    except asyncpg.exceptions.UniqueViolationError:
+        return "db failed"
+    
     return data
     
     

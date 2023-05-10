@@ -31,4 +31,10 @@ async def get_data():
     for item in data['ices']:
         result.setdefault('冰塊', [])
         result['冰塊'].append(item['name'])
+    for item in data['toppings']:
+        result.setdefault('加料', [])
+        result['加料'].append(item['name'])
+    for item in data['tastes']:
+        result.setdefault('口味', [])
+        result['口味'].append(item['name'])
     return result
