@@ -37,8 +37,8 @@ export default function ResponsiveDateRangePickers() {
           end: dayjs(dayjs().format().slice(0, 11) + "T23:59"),
         },
         date: {
-          start: dayjs("2023-04-13").subtract(7, "day"),
-          end: dayjs("2023-04-13").subtract(1, "day"),
+          start: dayjs().subtract(7, "day"),
+          end: dayjs().subtract(1, "day"),
         },
       },
     }));

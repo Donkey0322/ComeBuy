@@ -37,6 +37,8 @@ export default function LabTabs() {
           "YYYY-MM-DD"
         ),
         drink: condition.beverage.map((b) => b.name),
+        ices: condition.ice,
+        sweets: condition.sweet,
       };
       if (
         moment(condition.time.time.end.toISOString()).format("HH:mm") !==
@@ -70,7 +72,6 @@ export default function LabTabs() {
       const line = await getLineChart({ year: 3 });
       setResult((prev) => ({ ...prev, LineChart: line }));
       const bar = await getBarChart({ period: 3 });
-      console.log(bar);
       setResult((prev) => ({ ...prev, BarChart: bar }));
       ref.current.scrollIntoView({
         behavior: "smooth",
@@ -103,10 +104,18 @@ export default function LabTabs() {
               <StoreBeverage data={result.StoreBeverage} />
             </TabPanel>
             <TabPanel value="2">
-              <LineChartAnalysis data={result.LineChart} THEME={THEME} />
+              <LineChartAnalysis
+                data={result.LineChart}
+                THEME={THEME}
+                setTheme={setTheme}
+              />
             </TabPanel>
             <TabPanel value="3">
-              <BarChartAnalysis data={result.BarChart} THEME={THEME} />
+              <BarChartAnalysis
+                data={result.BarChart}
+                THEME={THEME}
+                setTheme={setTheme}
+              />
             </TabPanel>
           </TabContext>
         </div>

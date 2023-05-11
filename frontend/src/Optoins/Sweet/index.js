@@ -26,10 +26,12 @@ const SWEETMAP = {
 export default function Sweet() {
   const {
     DATA: { 甜度: DATA },
+    condition,
+    setCondition,
   } = useCondition();
   const [sweet, setSweet] = useState(
     DATA.reduce((acc, curr) => {
-      acc[curr.includes("分") ? curr.replace("分", "分糖") : curr] = false;
+      acc[curr] = condition.sweet.includes(curr);
       return acc;
     }, {})
   );
@@ -40,20 +42,31 @@ export default function Sweet() {
       ...prev,
       [name]: checked,
     }));
+    if (checked) {
+      setCondition((prev) => ({ ...prev, sweet: [...prev.sweet, name] }));
+    } else {
+      setCondition((prev) => ({
+        ...prev,
+        sweet: prev.sweet.filter((s) => s !== name),
+      }));
+    }
   };
 
   return (
     <Box>
       <FormGroup row>
         {Object.keys(sweet)
+          .map((m) => (m.includes("分") ? m.replace("分", "分糖") : m))
           .sort(SORTFUNC)
           .map((s, index) => (
             <FormControlLabel
-              value={s}
+              value={s} //分糖
               labelPlacement="bottom"
               control={
                 <Checkbox
-                  onClick={handleSweetClick(s)}
+                  onClick={handleSweetClick(
+                    s.includes("分糖") ? s.replace("分糖", "分") : s
+                  )}
                   checkedIcon={
                     <img
                       src={require(`./asset/${
@@ -72,7 +85,9 @@ export default function Sweet() {
                       width="35px"
                     />
                   }
-                  checked={sweet[s]}
+                  checked={
+                    sweet[s.includes("分糖") ? s.replace("分糖", "分") : s]
+                  }
                 />
               }
               label={s}

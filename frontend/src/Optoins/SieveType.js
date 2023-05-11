@@ -21,11 +21,12 @@ const SieveType = () => {
       child: <Location />,
       image: "location",
     },
-    購買方式: { focused: false },
+    // 購買方式: { focused: false },
     品項: { focused: false, child: <Beverage />, image: "drink" },
     // 口味: { focused: false },
     甜度: { focused: false, child: <Sweet />, image: "sweet" },
     冰塊: { focused: false, child: <Ice />, image: "ice" },
+    口味: { focused: false },
     加料: { focused: false },
   });
 
