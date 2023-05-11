@@ -238,6 +238,7 @@ const BarChartAnalysis = ({ data, THEME, setTheme }) => {
                   borderRadius: "50%",
                   border: "2px solid black",
                   backgroundColor: THEME[index],
+                  cursor: "pointer",
                 }}
               />
             </LightTooltip>

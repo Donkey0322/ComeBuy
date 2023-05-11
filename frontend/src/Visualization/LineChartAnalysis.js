@@ -184,7 +184,7 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
                   key={index}
                   arrow
                   title={
-                    <div style={{ margin: "100px" }}>
+                    <div>
                       <HexColorPicker
                         color={THEME[index]}
                         onChange={(e) => {
@@ -203,6 +203,7 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
                       borderRadius: "50%",
                       border: "2px solid black",
                       backgroundColor: THEME[index],
+                      cursor: "pointer",
                     }}
                   />
                 </LightTooltip>

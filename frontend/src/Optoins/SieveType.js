@@ -26,6 +26,7 @@ const SieveType = () => {
     // 口味: { focused: false },
     甜度: { focused: false, child: <Sweet />, image: "sweet" },
     冰塊: { focused: false, child: <Ice />, image: "ice" },
+    口味: { focused: false },
     加料: { focused: false },
   });
 
