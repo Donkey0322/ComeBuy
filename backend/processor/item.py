@@ -24,6 +24,8 @@ class SearchInput(BaseModel):
     tastes: List[str]=None
     sweets: List[str]=None
     ices: List[str]=None
+    part: bool=None
+    
 
 def make_global(*args, **kwargs):
     global_data = globals()
@@ -94,15 +96,18 @@ async def get_item(data: SearchInput):
                 for item in sublist:
                     constraints.append(item)
         record_dict = [dict(record) for record in result]
+        keys = ['ices', 'sweets', 'tastes', 'toppings'] 
         for row in record_dict:
             set1 = set(row.values())
             set2 = set(constraints)
             intersection = set1 & set2
             intersection = list(intersection)
             row['constraints'] = intersection
-        keys = ['ices', 'sweets', 'tastes', 'toppings']   
+            row['all'] = [] 
+            for key in keys:
+                if(row[key]):
+                    row['all'].append(row[key])
         result = [{key: record[key] for key in record.keys() if key not in keys} for record in record_dict] 
-        
     return result
 
 

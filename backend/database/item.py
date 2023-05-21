@@ -23,30 +23,43 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
     if(time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     sql = f"""
-        select  a.date, st.name as location, d.name as drink,
-                {'i.name as ice,' if data.ices else ''}
-                {'s2.name as sweet,' if data.sweets else ''}
-                {'t.name as topping,' if data.toppings else ''}
-                {'t2.name as taste,' if data.tastes else ''}
-                a.price, a.amount, st.price as total_price, st.amount as total_amount,
-                round(a.price*1.0/st.price, 4) as price_proportion, round(a.amount*1.0/st.amount, 4) as amount_proportion
-        from (
-            select s.id as id, s.name as name, sum(a.price) as price, sum(a.amount) as amount
-                from {table_query} a
-                join {case_table} s on a.{case} = s.id
-                where s.name in {place_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}' 
-                group by s.name, s.id
-            ) as st
-        join {table_query} a on st.id = a.{case}
-        {'join sweets s2 on a.sweet = s2.id' if data.sweets else ''}
-        {'join ices i on a.ice = i.id' if data.ices else ''}
-        {'join toppings t on a.topping = t.id' if data.toppings else ''}
-        {'join tastes t2 on a.taste = t2.id' if data.tastes else ''}
-        join drinks d on d.id = a.drink
-        where d.name in {drink_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}'
-              {'and ({})'.format(q) if q else ''}
-              {'and a.hour >= {} and a.hour < {}'.format(data.start_hour, data.end_hour) if time == 'hour' else ''}
-        order by st.name, d.name, a.date
+        select * from
+            (select  a.date, st.name as location, d.name as drink,
+                    i.name as ices,
+                    s2.name as sweets,
+                    t.name as toppings,
+                    t2.name as tastes,
+                    a.price, a.amount,
+                    {'case when st.drink = d.name then st.price else null end as total_price,' if data.part else 'st.price as total_price,'} 
+                    {'case when st.drink = d.name then st.amount else null end as total_amount,' if data.part else 'st.amount as total_amount,'}  
+                    {'case when st.drink = d.name then round(a.price*1.0/st.price, 4) else null end as price_proportion,' 
+                        if data.part 
+                        else 'round(a.price*1.0/st.price, 4) as price_proportion,'} 
+                    {'case when st.drink = d.name then round(a.amount*1.0/st.amount, 4) else null end as amount_proportion' 
+                        if data.part 
+                        else 'round(a.amount*1.0/st.amount, 4) as amount_proportion'}   
+            from (
+                select s.id as id, s.name as name, 
+                       {'d.name as drink,' if data.part else ''}
+                       sum(a.price) as price, sum(a.amount) as amount
+                    from {table_query} a
+                    join {case_table} s on a.{case} = s.id
+                    {'join drinks d on d.id = a.drink' if data.part else ''}
+                    where s.name in {place_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}' 
+                          {'and d.name in {}'.format(drink_str) if data.part else ''}
+                    group by s.name, s.id {',d.id' if data.part else ''}
+                ) as st
+            join {table_query} a on st.id = a.{case}
+            join sweets s2 on a.sweet = s2.id
+            join ices i on a.ice = i.id
+            join toppings t on a.topping = t.id
+            join tastes t2 on a.taste = t2.id
+            join drinks d on d.id = a.drink
+            where d.name in {drink_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}'
+                {'and ({})'.format(q) if q else ''}
+                {'and a.hour >= {} and a.hour < {}'.format(data.start_hour, data.end_hour) if time == 'hour' else ''}
+            order by st.name, d.name, a.date) as T
+        where T.total_price is not null
     """
     try:
         result = await pool_handler.pool.fetch(sql)
@@ -74,29 +87,35 @@ async def bar(data: object, case: str, case_table: str, time: str, table_query: 
                a.price, a.amount,
                case
                    when a.date between st.start_date and st.end_date
+                        {'and st.drink = d.name' if data.part else ''}
                    then st.price
                    else null
                end as total_price,
                case
                    when a.date between st.start_date and st.end_date
+                        {'and st.drink = d.name' if data.part else ''}
                    then st.amount
                    else null
                end as total_amount
         from(
-            select id, name, min(date) as start_date, max(date) as end_date, sum(price) as price, sum(amount) as amount 
+            select id, name, {'drink,' if data.part else ''} min(date) as start_date, max(date) as end_date, sum(price) as price, sum(amount) as amount 
             from(
                 select *, (lead(date, 0, '{str(data.end_date)}') OVER (PARTITION BY name order by date) - '{str(data.end_date)}' ) * -1 as rn 
                 from(
-                    select s.id as id, s.name as name, a.date, sum(a.price) as price, sum(a.amount) as amount
+                    select s.id as id, s.name as name, a.date,
+                    {'d2.name as drink,' if data.part else ''}
+                    sum(a.price) as price, sum(a.amount) as amount
                     from {table_query} a
                     join {case_table} s on a.{case} = s.id
+                    {'join drinks d2 on a.drink = d2.id' if data.part else ''}
                     where s.name in {place_str} 
                           and a.date between '{str(start_date)}' and '{str(data.end_date)}'
-                    group by s.name, s.id, a.date
+                          {'and d2.name in {}'.format(drink_str) if data.part else ''}
+                    group by s.name, s.id, a.date{',d2.id' if data.part else ''}
                     order by s.name, a.date
                 ) as f1
             ) as f2
-            group by rn/{interval+1}, id, name
+            group by rn/{interval+1}, id, name{',drink' if data.part else ''}
         ) as st
         join {table_query} a on a.{case} = st.id
         join drinks d on a.drink = d.id
@@ -145,17 +164,20 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
                             when to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
                             then case
                                     when date_part('year', a.date::date) = st.year - 1
+                                         {'and st.drink = d.name' if data.part else ''}
                                     then st.price
                                     else null
                                 end
                             else case
                                     when date_part('year', a.date::date) = st.year
+                                         {'and st.drink = d.name' if data.part else ''}
                                     then st.price
                                     else null
                                 end
                         end
                     else case
                             when date_part('year', a.date::date) = st.year
+                                 {'and st.drink = d.name' if data.part else ''}
                             then st.price
                             else null
                         end
@@ -166,23 +188,28 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
                             when to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
                             then case
                                     when date_part('year', a.date::date) = st.year - 1
+                                         {'and st.drink = d.name' if data.part else ''}
                                     then st.amount
                                     else null
                                 end
                             else case
                                     when date_part('year', a.date::date) = st.year
+                                         {'and st.drink = d.name' if data.part else ''}
                                     then st.amount
                                     else null
                                 end
                         end
                     else case
                             when date_part('year', a.date::date) = st.year
+                                 {'and st.drink = d.name' if data.part else ''}
                             then st.amount
                             else null
                         end
                 end as total_amount
         from(
-            select  s.id, s.name, sum(price) as price, sum(amount) as amount,
+            select  s.id, s.name, 
+            {'d2.name as drink,' if data.part else ''}
+            sum(price) as price, sum(amount) as amount,
             case
                 when '{str(start_date)}' > '{str(end_date)}'
                     then case
@@ -195,6 +222,7 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
                     end as year
                 from {table_query} a
                 join {case_table} s on a.{case} = s.id
+                {'join drinks d2 on a.drink = d2.id' if data.part else ''}
                 where case
                         when '{str(start_date)}' > '{str(end_date)}'
                             then to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
@@ -203,7 +231,8 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
                             to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '{str(end_date)}'
                         end
                 and s.name in {place_str}
-                group by year, s.id, s.name, a.{case}
+                {'and d2.name in {}'.format(drink_str) if data.part else ''}
+                group by year, s.id, s.name, a.{case}{',d2.id' if data.part else ''}
                 order by a.{case}
             )as st
         join {table_query} a on st.id = a.{case}
