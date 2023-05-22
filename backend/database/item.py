@@ -10,17 +10,22 @@ from . import pool_handler
 
 async def get(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str]) -> object:
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink) 
-    topping_str = (f"('{data.toppings[0]}')" if len(data.toppings) == 1 else tuple(data.toppings)) if data.toppings else ''
-    sweet_str = (f"('{data.sweets[0]}')" if len(data.sweets) == 1 else tuple(data.sweets)) if data.sweets else ''
-    ice_str = (f"('{data.ices[0]}')" if len(data.ices) == 1 else tuple(data.ices)) if data.ices else ''
-    taste_str = (f"('{data.tastes[0]}')" if len(data.tastes) == 1 else tuple(data.tastes)) if data.tastes else ''
+    drink_str = f"('{data.drink[0]}')" if len(
+        data.drink) == 1 else tuple(data.drink)
+    topping_str = (f"('{data.toppings[0]}')" if len(
+        data.toppings) == 1 else tuple(data.toppings)) if data.toppings else ''
+    sweet_str = (f"('{data.sweets[0]}')" if len(
+        data.sweets) == 1 else tuple(data.sweets)) if data.sweets else ''
+    ice_str = (f"('{data.ices[0]}')" if len(data.ices)
+               == 1 else tuple(data.ices)) if data.ices else ''
+    taste_str = (f"('{data.tastes[0]}')" if len(
+        data.tastes) == 1 else tuple(data.tastes)) if data.tastes else ''
     a = ['s2.name in {}'.format(sweet_str) if data.sweets else None,
-        'i.name in {}'.format(ice_str) if data.ices else None,
-        't.name in {}'.format(topping_str) if data.toppings else None,
-        't2.name in {}'.format(taste_str) if data.tastes else None]
+         'i.name in {}'.format(ice_str) if data.ices else None,
+         't.name in {}'.format(topping_str) if data.toppings else None,
+         't2.name in {}'.format(taste_str) if data.tastes else None]
     q = ' or '.join([x for x in a if x is not None])
-    if(time == 'hour'):
+    if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     sql = f"""
         select * from
@@ -70,9 +75,11 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
 
 async def bar(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], interval: str, period: int, key=None) -> object:
     start_date = data.start_date - timedelta(days=(interval+1)*(period-1))
-    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
+    drink_str = f"('{data.drink[0]}')" if len(
+        data.drink) == 1 else tuple(data.drink)
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    key_str = (f"('{dict(data)[key][0]}')" if len(dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
+    key_str = (f"('{dict(data)[key][0]}')" if len(
+        dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
     if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     sql = f'''
@@ -142,12 +149,14 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
     end_year = int(data.end_date.strftime("%Y"))
     start_year = int(end_year)-year+1
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
-    key_str = (f"('{dict(data)[key][0]}')" if len(dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
-    if(time == 'hour'):
+    drink_str = f"('{data.drink[0]}')" if len(
+        data.drink) == 1 else tuple(data.drink)
+    key_str = (f"('{dict(data)[key][0]}')" if len(
+        dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
+    if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
 
-    sql=f'''
+    sql = f'''
     select  T.name as location, T.drink, T.year,
             {'T.constraint as constraint,' if key else ''}
             sum(T.price) as price, sum(T.amount) as amount,

@@ -34,19 +34,21 @@ const ConditionProvider = (props) => {
         level: "store",
         route: ["北區", "新北市", "新店區"],
       },
-      // {
-      //   name: "花蓮中山店",
-      //   level: "store",
-      //   route: ["東區", "花蓮縣", "花蓮市"],
-      // },
+      {
+        name: "花蓮中山店",
+        level: "store",
+        route: ["東區", "花蓮縣", "花蓮市"],
+      },
     ],
     method: [],
     beverage: [
       { name: "海神", category: "原葉鮮萃茶" },
-      // { name: "鮮萃大麥紅茶", category: "原葉鮮萃茶" },
+      { name: "鮮萃大麥紅茶", category: "原葉鮮萃茶" },
     ],
-    ice: [],
-    sweet: [],
+    ice: ["正常冰"],
+    sweet: ["正常糖"],
+    flavor: [],
+    topping: [],
   });
   const [systemState, setSystemState] = useState({});
   const [DATA, SETDATA] = useState("");

@@ -71,17 +71,19 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
             (!constraint || constraint === curr.constraint)
           ) {
             acc[
-              constraint
-                ? `${curr.location} ${curr.drink} ${constraint}`
-                : `${curr.location} ${curr.drink}`
+              // constraint
+              //   ? `${curr.location} ${curr.drink} ${constraint}`
+              //   : `${curr.location} ${curr.drink}`
+              `${curr.location} ${curr.drink}`
             ] =
               curr[
                 type === "杯數佔比" ? "amount_proportion" : "price_proportion"
               ];
             location.add(
-              constraint
-                ? `${curr.location} ${curr.drink} ${constraint}`
-                : `${curr.location} ${curr.drink}`
+              // constraint
+              //   ? `${curr.location} ${curr.drink} ${constraint}`
+              //   : `${curr.location} ${curr.drink}`
+              `${curr.location} ${curr.drink}`
             );
           }
           return acc;
@@ -124,14 +126,14 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
 
   useEffect(() => {
     if (showType) {
-      setPoints(dataFormatProcessing(data, 3, showType, constraint));
+      setPoints(dataFormatProcessing(data, year, showType, constraint));
       setKey((prev) => prev + 1);
     }
   }, [showType]);
 
   useEffect(() => {
     if (constraint) {
-      setPoints(dataFormatProcessing(data, 3, showType, constraint));
+      setPoints(dataFormatProcessing(data, year, showType, constraint));
       setKey((prev) => prev + 1);
     }
   }, [constraint]);
@@ -299,8 +301,6 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
                 <YAxis tickLine={false} domain={[1, "auto"]} type="number" />
                 <Tooltip />
                 <Legend
-                  // onMouseEnter={handleMouseEnter}
-                  // onMouseLeave={handleMouseLeave}
                   onClick={點按圖例}
                   iconSize={25}
                   iconType="rect"
@@ -311,15 +311,11 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
                 />
                 {points.point.map((l, index) => (
                   <Line
-                    // type="monotone"
                     type="linear"
                     dataKey={l.name}
-                    // strokeOpacity={opacity.台北北醫}
                     stroke={THEME[index]}
                     activeDot={{ r: 8 }}
                     strokeWidth={3}
-                    style={{ opacity: 1 }}
-                    // stroke
                     key={index}
                     hide={l.hide}
                   />

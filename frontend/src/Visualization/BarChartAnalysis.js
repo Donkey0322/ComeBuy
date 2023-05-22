@@ -110,17 +110,19 @@ const BarChartAnalysis = ({ data, THEME, setTheme }) => {
             (!constraint || constraint === curr.constraint)
           ) {
             acc[
-              constraint
-                ? `${curr.location} ${curr.drink} ${constraint}`
-                : `${curr.location} ${curr.drink}`
+              // constraint
+              //   ? `${curr.location} ${curr.drink} ${constraint}`
+              //   : `${curr.location} ${curr.drink}`
+              `${curr.location} ${curr.drink}`
             ] =
               curr[
                 type === "杯數佔比" ? "amount_proportion" : "price_proportion"
               ];
             location.add(
-              constraint
-                ? `${curr.location} ${curr.drink} ${constraint}`
-                : `${curr.location} ${curr.drink}`
+              // constraint
+              //   ? `${curr.location} ${curr.drink} ${constraint}`
+              //   : `${curr.location} ${curr.drink}`
+              `${curr.location} ${curr.drink}`
             );
           }
           return acc;
@@ -164,16 +166,16 @@ const BarChartAnalysis = ({ data, THEME, setTheme }) => {
 
   useEffect(() => {
     if (showType) {
-      setBars(dataFormatProcessing(data, 3, showType, constraint));
+      setBars(dataFormatProcessing(data, period, showType, constraint));
       setKey((prev) => prev + 1);
     }
   }, [showType]);
 
   useEffect(() => {
     if (constraint) {
-      setBars(dataFormatProcessing(data, 3, showType, constraint));
-      setKey((prev) => prev + 1);
+      setBars(dataFormatProcessing(data, period, showType, constraint));
     }
+    setKey((prev) => prev + 1);
   }, [constraint]);
 
   /*constraint 套組*/
