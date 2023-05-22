@@ -12,6 +12,8 @@ import Time from "./Time";
 import Beverage from "./Beverage";
 import Ice from "./Ice";
 import Sweet from "./Sweet";
+import Flavor from "./Flavor";
+import Topping from "./Topping";
 
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
@@ -26,8 +28,8 @@ const SieveType = () => {
     // 口味: { focused: false },
     甜度: { focused: false, child: <Sweet />, image: "sweet" },
     冰塊: { focused: false, child: <Ice />, image: "ice" },
-    口味: { focused: false },
-    加料: { focused: false },
+    口味: { focused: false, child: <Flavor /> },
+    加料: { focused: false, child: <Topping /> },
   });
 
   const handleSieveClick = (name) => () => {

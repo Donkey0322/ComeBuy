@@ -39,6 +39,8 @@ export default function LabTabs() {
         drink: condition.beverage.map((b) => b.name),
         ices: condition.ice,
         sweets: condition.sweet,
+        toppings: condition.topping,
+        tastes: condition.flavor,
       };
       if (
         moment(condition.time.time.end.toISOString()).format("HH:mm") !==
