@@ -49,6 +49,7 @@ const ConditionProvider = (props) => {
     sweet: ["正常糖"],
     flavor: [],
     topping: [],
+    part: false,
   });
   const [systemState, setSystemState] = useState({});
   const [DATA, SETDATA] = useState("");
@@ -93,7 +94,9 @@ const ConditionProvider = (props) => {
     if (!DATA) {
       (async () => {
         try {
+          console.log("Hi");
           const result = await getConst();
+          console.log(result);
           SETDATA(result);
         } catch (error) {
           throw error;

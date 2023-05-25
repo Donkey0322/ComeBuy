@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Box, Tab, Button } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import StoreBeverage from "./StoreBeverage";
@@ -19,6 +19,7 @@ export default function LabTabs() {
   const handleChange = (_, newValue) => {
     setValue(newValue);
   };
+
   const handleSearchClick = async () => {
     try {
       if (
@@ -41,6 +42,7 @@ export default function LabTabs() {
         sweets: condition.sweet,
         toppings: condition.topping,
         tastes: condition.flavor,
+        part: condition.part,
       };
       if (
         moment(condition.time.time.end.toISOString()).format("HH:mm") !==
@@ -60,9 +62,12 @@ export default function LabTabs() {
         },
         temp
       );
-      setSystemState({ locationLevel: condition.location?.[0]?.level });
+      setSystemState({
+        locationLevel: condition.location?.[0]?.level,
+        part: condition.part,
+      });
       setTheme(
-        _.range(10).map(
+        _.range(condition.beverage.length * condition.location.length).map(
           () =>
             "#" +
             (0x1000000 + Math.random() * 0xffffff).toString(16).substring(1, 7)
