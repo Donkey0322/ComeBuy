@@ -12,6 +12,17 @@ import {
 import { useCondition } from "../hooks/useCondition";
 import moment from "moment";
 
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    constraint: {
+      main: "#03a9f4",
+      contrastText: "#fff",
+    },
+  },
+});
+
 const CustomToolBar = () => {
   return (
     <GridToolbarContainer>
@@ -53,16 +64,16 @@ const StoreBeverage = ({ data }) => {
   const DATA = {
     label: [
       "序號",
+      "交易日期",
       `${levelMap[systemState?.locationLevel]}名稱`,
       "飲品",
-      "總杯數",
+      "額外條件",
+      `${systemState?.part ? "該品項" : "全品項"}總杯數`,
       "飲品杯數",
       "杯數佔比",
-      "總金額",
+      `${systemState?.part ? "該品項" : "全品項"}總金額`,
       "飲品金額",
       "金額佔比",
-      "交易日期",
-      "額外條件",
     ],
     data,
   };
@@ -74,19 +85,30 @@ const StoreBeverage = ({ data }) => {
           .map((m) => ({
             field: m,
             headerName: m,
-            flex: m.includes("額外條件") ? 1.8 : 1,
+            flex: m.includes("額外條件") ? 2 : 1,
             type: m.includes("日期") && "dateTime",
-            renderCell: ({ value }) =>
+            renderCell: ({ value, row }) =>
               m === "額外條件" ? (
                 <ConstraintsContainer>
-                  {value.split(",").map((i, index) => (
-                    <Chip
-                      key={index}
-                      label={i}
-                      // color="primary"
-                      // variant="outlined"
-                    />
-                  ))}
+                  {row["全部"]
+                    .sort(
+                      (a, b) =>
+                        value.split(",").includes(b) -
+                        value.split(",").includes(a)
+                    )
+                    .map((all, index) => (
+                      <ThemeProvider theme={theme} key={index}>
+                        <Chip
+                          key={index}
+                          label={all}
+                          color={
+                            value.split(",").includes(all)
+                              ? "constraint"
+                              : "default"
+                          }
+                        />
+                      </ThemeProvider>
+                    ))}
                 </ConstraintsContainer>
               ) : m.includes("日期") ? (
                 moment(value).format("YYYY-MM-DD")
@@ -106,14 +128,15 @@ const StoreBeverage = ({ data }) => {
           序號: index + 1,
           [`${levelMap[systemState?.locationLevel]}名稱`]: m.location,
           飲品: m.drink,
-          總杯數: m.total_amount,
+          [`${systemState?.part ? "該品項" : "全品項"}總杯數`]: m.total_amount,
           飲品杯數: m.amount,
           杯數佔比: m.amount_proportion,
-          總金額: m.total_price,
+          [`${systemState?.part ? "該品項" : "全品項"}總金額`]: m.total_price,
           飲品金額: m.price,
           金額佔比: m.price_proportion,
           交易日期: m.date,
           額外條件: m.constraints,
+          全部: m.all,
         })),
       }
     : "";

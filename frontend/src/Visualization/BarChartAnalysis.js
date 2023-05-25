@@ -109,21 +109,11 @@ const BarChartAnalysis = ({ data, THEME, setTheme }) => {
             curr.start_date === temp.year.split(" ")[0] &&
             (!constraint || constraint === curr.constraint)
           ) {
-            acc[
-              // constraint
-              //   ? `${curr.location} ${curr.drink} ${constraint}`
-              //   : `${curr.location} ${curr.drink}`
-              `${curr.location} ${curr.drink}`
-            ] =
+            acc[`${curr.location} ${curr.drink}`] =
               curr[
                 type === "杯數佔比" ? "amount_proportion" : "price_proportion"
               ];
-            location.add(
-              // constraint
-              //   ? `${curr.location} ${curr.drink} ${constraint}`
-              //   : `${curr.location} ${curr.drink}`
-              `${curr.location} ${curr.drink}`
-            );
+            location.add(`${curr.location} ${curr.drink}`);
           }
           return acc;
         }, temp);
@@ -146,7 +136,7 @@ const BarChartAnalysis = ({ data, THEME, setTheme }) => {
       setBars(dataFormatProcessing(result, period, showType, constraint));
       setKey((prev) => prev + 1);
     }, 300),
-    []
+    [showType, constraint]
   );
 
   const handlePeriodChange = (e) => {

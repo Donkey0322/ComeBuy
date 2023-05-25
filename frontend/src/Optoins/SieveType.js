@@ -6,6 +6,9 @@ import {
   ListItem,
   ListItemText,
   Collapse,
+  FormControlLabel,
+  Switch,
+  Zoom,
 } from "@mui/material";
 import Location from "./Location";
 import Time from "./Time";
@@ -14,6 +17,7 @@ import Ice from "./Ice";
 import Sweet from "./Sweet";
 import Flavor from "./Flavor";
 import Topping from "./Topping";
+import { useCondition } from "../hooks/useCondition";
 
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
@@ -31,6 +35,10 @@ const SieveType = () => {
     口味: { focused: false, child: <Flavor /> },
     加料: { focused: false, child: <Topping /> },
   });
+  const {
+    condition: { part, ice, sweet, flavor, topping },
+    setCondition,
+  } = useCondition();
 
   const handleSieveClick = (name) => () => {
     setSieveType((prev) => ({
@@ -89,6 +97,34 @@ const SieveType = () => {
           </Collapse>
         </div>
       ))}
+      <ListItem
+        style={{
+          display:
+            !ice.length &&
+            !sweet.length &&
+            !flavor.length &&
+            !topping.length &&
+            "none",
+        }}
+      >
+        <Zoom
+          in={Boolean(
+            ice.length || sweet.length || flavor.length || topping.length
+          )}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={part}
+                onChange={() =>
+                  setCondition((prev) => ({ ...prev, part: !prev.part }))
+                }
+              />
+            }
+            label="分別飲品統整"
+          />
+        </Zoom>
+      </ListItem>
     </List>
   );
 };
