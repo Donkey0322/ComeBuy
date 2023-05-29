@@ -1,7 +1,7 @@
 import database as db
 from datetime import date, datetime, timedelta
 from typing import List
-from fastapi import APIRouter, Depends, Request, responses, Body
+from fastapi import APIRouter,  responses, Body
 from pydantic import BaseModel
 
 router = APIRouter(
@@ -98,7 +98,13 @@ async def get_item(data: SearchInput):
         record_dict = [dict(record) for record in result]
         keys = ['ices', 'sweets', 'tastes', 'toppings'] 
         for row in record_dict:
-            set1 = set(row.values())
+            my_list = list(row.values())
+            set1 = set()
+            for item in my_list:
+                if isinstance(item, list):
+                    set1.update(item)
+                else:
+                    set1.add(item)
             set2 = set(constraints)
             intersection = set1 & set2
             intersection = list(intersection)
@@ -106,7 +112,10 @@ async def get_item(data: SearchInput):
             row['all'] = [] 
             for key in keys:
                 if(row[key]):
-                    row['all'].append(row[key])
+                    if(type(row[key]) != list):
+                        row['all'].append(row[key])
+                    else:
+                        row['all'].extend(row[key])
         result = [{key: record[key] for key in record.keys() if key not in keys} for record in record_dict] 
     return result
 
@@ -116,7 +125,6 @@ async def bar_item(period: int = Body(..., embed=True)):
     global_data = globals()
     interval, period_date = make_period(global_data['data'], period)         
     count, keys = check_contain(global_data['data'])
-
     if(count != 0):
         records = []
         for i in range(count):
@@ -130,8 +138,6 @@ async def bar_item(period: int = Body(..., embed=True)):
                                         case_table=global_data['case_table'], time=global_data['time'],
                                         table_query=global_data['table_query'], place=global_data['place'],
                                         interval=interval, period=period)
-
-    
     result = [dict(record) for record in records]
     
     for i in result:
