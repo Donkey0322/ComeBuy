@@ -1,30 +1,24 @@
 from typing import List
-from datetime import date, timedelta
-
-#import exceptions as exc  # noqa
-
-import asyncpg
-
+from datetime import timedelta
 from . import pool_handler
 
 
 async def get(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str]) -> object:
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    drink_str = f"('{data.drink[0]}')" if len(
-        data.drink) == 1 else tuple(data.drink)
-    topping_str = (f"('{data.toppings[0]}')" if len(
-        data.toppings) == 1 else tuple(data.toppings)) if data.toppings else ''
-    sweet_str = (f"('{data.sweets[0]}')" if len(
-        data.sweets) == 1 else tuple(data.sweets)) if data.sweets else ''
-    ice_str = (f"('{data.ices[0]}')" if len(data.ices)
-               == 1 else tuple(data.ices)) if data.ices else ''
-    taste_str = (f"('{data.tastes[0]}')" if len(
-        data.tastes) == 1 else tuple(data.tastes)) if data.tastes else ''
-    a = ['s2.name in {}'.format(sweet_str) if data.sweets else None,
-         'i.name in {}'.format(ice_str) if data.ices else None,
-         't.name in {}'.format(topping_str) if data.toppings else None,
-         't2.name in {}'.format(taste_str) if data.tastes else None]
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
+    sweet_str = (f"('{data.sweets[0]}')" if len(data.sweets) == 1 else tuple(data.sweets)) if data.sweets else ''
+    ice_str = (f"('{data.ices[0]}')" if len(data.ices)== 1 else tuple(data.ices)) if data.ices else ''
+    a = []
+    if(data.toppings):
+        for topping in data.toppings:
+            a.append(f"'{topping}' = any(a.topping)")
+    if(data.tastes):
+        for taste in data.tastes:
+             a.append(f"'{taste}' = any(a.taste)")
+    a.append('s2.name in {}'.format(sweet_str) if data.sweets else None)
+    a.append('i.name in {}'.format(ice_str) if data.ices else None)
     q = ' or '.join([x for x in a if x is not None])
+    print(q)
     if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     sql = f"""
@@ -32,8 +26,8 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
             (select  a.date, st.name as location, d.name as drink,
                     i.name as ices,
                     s2.name as sweets,
-                    t.name as toppings,
-                    t2.name as tastes,
+                    a.topping as toppings,
+                    a.taste as tastes,
                     a.price, a.amount,
                     {'case when st.drink = d.name then st.price else null end as total_price,' if data.part else 'st.price as total_price,'} 
                     {'case when st.drink = d.name then st.amount else null end as total_amount,' if data.part else 'st.amount as total_amount,'}  
@@ -57,8 +51,6 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
             join {table_query} a on st.id = a.{case}
             join sweets s2 on a.sweet = s2.id
             join ices i on a.ice = i.id
-            join toppings t on a.topping = t.id
-            join tastes t2 on a.taste = t2.id
             join drinks d on d.id = a.drink
             where d.name in {drink_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}'
                 {'and ({})'.format(q) if q else ''}
@@ -66,20 +58,15 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
             order by st.name, d.name, a.date) as T
         where T.total_price is not null
     """
-    try:
-        result = await pool_handler.pool.fetch(sql)
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
     return result
 
 
 async def bar(data: object, case: str, case_table: str, time: str, table_query: str, place: List[str], interval: str, period: int, key=None) -> object:
     start_date = data.start_date - timedelta(days=(interval+1)*(period-1))
-    drink_str = f"('{data.drink[0]}')" if len(
-        data.drink) == 1 else tuple(data.drink)
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    key_str = (f"('{dict(data)[key][0]}')" if len(
-        dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
+    key_str = (f"('{dict(data)[key][0]}')" if len(dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
     if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     sql = f'''
@@ -90,7 +77,7 @@ async def bar(data: object, case: str, case_table: str, time: str, table_query: 
             round(sum(T.price)*100/T.total_price, 2) as price_proportion, round(sum(T.amount)*100/T.total_amount, 2) as amount_proportion
     from(
         select st.name as name, st.start_date, st.end_date, d.name as drink, 
-               {'s2.name as constraint,' if key else ''}
+               {'s2.name as constraint,' if key in ['ices','sweets'] else 'a.constraint,' if key else ''}
                a.price, a.amount,
                case
                    when a.date between st.start_date and st.end_date
@@ -124,22 +111,21 @@ async def bar(data: object, case: str, case_table: str, time: str, table_query: 
             ) as f2
             group by rn/{interval+1}, id, name{',drink' if data.part else ''}
         ) as st
-        join {table_query} a on a.{case} = st.id
+        {'join {} a on a.{} = st.id'.format(table_query, case) if key in ['ices','sweets'] 
+          else 'join (select unnest({}) as constraint,* from {} a) a on a.{} = st.id'.format(key[:-1], table_query, case) if key
+          else 'join {} a on a.{} = st.id'.format(table_query, case)}
         join drinks d on a.drink = d.id
-        {'join {} s2 on a.{} = s2.id'.format(key, key[:-1]) if key else ''}
+        {'join {} s2 on a.{} = s2.id'.format(key, key[:-1]) if key in ['ices','sweets'] else '' if key else ''}
         where d.name in {drink_str} 
               and a.date between '{str(start_date)}' and '{str(data.end_date)}' 
-              {'and s2.name in {}'.format(key_str) if key else ''}
+              {'and s2.name in {}'.format(key_str) if key in ['ices','sweets'] else 'and a.constraint in {}'.format(key_str) if key else ''}
               {'and a.hour >= {} and a.hour < {}'.format(data.start_hour, data.end_hour) if time == 'hour' else ''}
         order by st.name) as T
     where T.total_price is not null 
     group by T.start_date, T.name, T.drink, T.end_date, T.total_price, T.total_amount {',T.constraint' if key else ''}
     order by T.name;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
     return result
 
 
@@ -149,13 +135,10 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
     end_year = int(data.end_date.strftime("%Y"))
     start_year = int(end_year)-year+1
     place_str = f"('{place[0]}')" if len(place) == 1 else tuple(place)
-    drink_str = f"('{data.drink[0]}')" if len(
-        data.drink) == 1 else tuple(data.drink)
-    key_str = (f"('{dict(data)[key][0]}')" if len(
-        dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
+    drink_str = f"('{data.drink[0]}')" if len(data.drink) == 1 else tuple(data.drink)
+    key_str = (f"('{dict(data)[key][0]}')" if len(dict(data)[key]) == 1 else tuple(dict(data)[key])) if key else ''
     if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
-
     sql = f'''
     select  T.name as location, T.drink, T.year,
             {'T.constraint as constraint,' if key else ''}
@@ -165,7 +148,7 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
             round(sum(T.amount)*100.0/T.total_amount, 2) as amount_proportion
     from(
         select  st.name as name, d.name as drink, st.year, a.date,
-                {'s2.name as constraint,' if key else ''}
+                {'s2.name as constraint,' if key in ['ices','sweets'] else 'a.constraint,' if key else ''}
                 a.price, a.amount,
                 case
                 when '{str(start_date)}' > '{str(end_date)}'
@@ -244,11 +227,13 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
                 group by year, s.id, s.name, a.{case}{',d2.id' if data.part else ''}
                 order by a.{case}
             )as st
-        join {table_query} a on st.id = a.{case}
+        {'join {} a on a.{} = st.id'.format(table_query, case) if key in ['ices','sweets'] 
+          else 'join (select unnest({}) as constraint,* from {} a) a on a.{} = st.id'.format(key[:-1], table_query, case) if key
+          else 'join {} a on a.{} = st.id'.format(table_query, case)}
         join drinks d on a.drink = d.id
-        {'join {} s2 on a.{} = s2.id'.format(key, key[:-1]) if key else ''}
+        {'join {} s2 on a.{} = s2.id'.format(key, key[:-1]) if key in ['ices','sweets'] else '' if key else ''}
         where d.name in {drink_str}
-            {'and s2.name in {}'.format(key_str) if key else ''}
+            {'and s2.name in {}'.format(key_str) if key in ['ices','sweets'] else 'and a.constraint in {}'.format(key_str) if key else ''}
             and case
                 when '{str(start_date)}' > '{str(end_date)}'
                     then to_char(a.date::date, 'MM-DD') between '{str(start_date)}' and '12-31'
@@ -262,9 +247,5 @@ async def line(data: object, case: str, case_table: str, time: str, table_query:
             group by T.name, T.drink, T.year, T.total_price, T.total_amount{',T.constraint' if key else ''}
             order by T.name, T.drink;
         '''
-
-    try:
-        result = await pool_handler.pool.fetch(sql)
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
     return result
