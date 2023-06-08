@@ -101,7 +101,11 @@ const Index = () => {
           <ThemeProvider theme={theme} key={index}>
             <Chip
               label={c.name}
-              onDelete={() => deleteLocationCondition(c.name, c.level)}
+              onDelete={
+                c.level !== "all"
+                  ? () => deleteLocationCondition(c.name, c.level)
+                  : undefined
+              }
               name={c.name}
               color={checkValidCondition() ? "default" : c.level}
             />

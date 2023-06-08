@@ -90,11 +90,11 @@ const StoreBeverage = ({ data }) => {
             renderCell: ({ value, row }) =>
               m === "額外條件" ? (
                 <ConstraintsContainer>
-                  {row["全部"]
+                  {value
+                    .split(",")
                     .sort(
                       (a, b) =>
-                        value.split(",").includes(b) -
-                        value.split(",").includes(a)
+                        row["全部"].includes(b) - row["全部"].includes(a)
                     )
                     .map((all, index) => (
                       <ThemeProvider theme={theme} key={index}>
@@ -102,9 +102,7 @@ const StoreBeverage = ({ data }) => {
                           key={index}
                           label={all}
                           color={
-                            value.split(",").includes(all)
-                              ? "constraint"
-                              : "default"
+                            row["全部"].includes(all) ? "constraint" : "default"
                           }
                         />
                       </ThemeProvider>
@@ -135,8 +133,8 @@ const StoreBeverage = ({ data }) => {
           飲品金額: m.price,
           金額佔比: m.price_proportion,
           交易日期: m.date,
-          額外條件: m.constraints,
-          全部: m.all,
+          額外條件: m.all,
+          全部: m.constraints,
         })),
       }
     : "";
