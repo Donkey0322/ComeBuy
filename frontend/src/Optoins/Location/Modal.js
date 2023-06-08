@@ -193,28 +193,26 @@ export default function Modal({ handleModalClose }) {
       setLocation((prev) => recursive_set(type, prev, ...route));
       if (type === "chosen") {
         for (const index in route) {
-          let func = Boolean(
+          let func =
             condition.location.find(
               (e) =>
                 (e.name === route[index] &&
                   e.level === INDEXFORM[Number(index) + 1]) ||
                 e.route.includes(route[index])
             ) || Number(index) + 1 !== route.length
-          )
-            ? !shortcut || Number(index) + 1 !== route.length
-              ? deleteLocationCondition
-              : () => {}
-            : addLocationCondtion;
+              ? !shortcut || Number(index) + 1 !== route.length
+                ? deleteLocationCondition
+                : () => {}
+              : addLocationCondtion;
           func(route[index], INDEXFORM[Number(index) + 1], route.slice(0, -1));
         }
       }
     };
 
   const AllClick = (ROUTE) => () => {
-    console.log(ROUTE);
     if (ROUTE) {
       let tmp = [];
-      for (const store of ALLSTORE) {
+      for (const store of currentRoutes) {
         if (
           store.join(",").includes(ROUTE.join(",")) &&
           !tmp.includes(store.slice(0, ROUTE.length + 1).join(","))

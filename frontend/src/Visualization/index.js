@@ -16,6 +16,11 @@ export default function LabTabs() {
   const [THEME, setTheme] = useState([]);
   const ref = useRef();
 
+  const checkValidCondition = () => {
+    const level = condition.location?.[0]?.level;
+    return level ? condition.location.every((e) => e.level === level) : true;
+  };
+
   const handleChange = (_, newValue) => {
     setValue(newValue);
   };
@@ -91,7 +96,12 @@ export default function LabTabs() {
 
   return (
     <Box sx={{ ml: 3, width: "90%", typography: "body1" }}>
-      <Button variant="contained" onClick={handleSearchClick} sx={{ mb: 2 }}>
+      <Button
+        variant="contained"
+        onClick={handleSearchClick}
+        sx={{ mb: 2 }}
+        disabled={!checkValidCondition()}
+      >
         送出
       </Button>
       {Object.keys(result).length > 0 && (

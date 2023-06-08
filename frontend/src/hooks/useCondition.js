@@ -55,6 +55,13 @@ const ConditionProvider = (props) => {
   const [DATA, SETDATA] = useState("");
 
   const addLocationCondtion = (name, level, route) => {
+    if (condition.location.some((e) => e.name === "全台")) {
+      setCondition((prev) => ({
+        ...prev,
+        location: [{ name, level, route }],
+      }));
+      return;
+    }
     setCondition((prev) => ({
       ...prev,
       location: [...prev.location, { name, level, route }],
@@ -104,6 +111,21 @@ const ConditionProvider = (props) => {
       })();
     }
   }, [DATA]);
+
+  useEffect(() => {
+    if (!condition.location.length) {
+      setCondition((prev) => ({
+        ...prev,
+        location: [
+          {
+            name: "全台",
+            level: "all",
+            route: [],
+          },
+        ],
+      }));
+    }
+  }, [condition.location]);
 
   return (
     <ConditionContext.Provider

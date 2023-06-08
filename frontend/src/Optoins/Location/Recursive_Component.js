@@ -52,7 +52,6 @@ const Recusive_Component = ({ DATA_INDEX, data, handle, AllClick }) => {
               <Button
                 variant={data[d].chosen ? "contained" : "outlined"}
                 onClick={handle("chosen", ...DATA_INDEX, d)}
-                // disableRipple={true}
               >
                 {d}
               </Button>
