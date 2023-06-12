@@ -3,7 +3,8 @@ VALUES ('北區'),
        ('南區'),
        ('中區'),
        ('東區'),
-       ('離島');
+       ('離島'),
+       ('全臺');
 
 INSERT INTO counties (name)
 VALUES ('新北市'),
