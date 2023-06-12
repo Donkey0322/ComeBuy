@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import AppFrame from "./AppFrame";
@@ -14,10 +14,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppFrame />}>
-            {/* <Test /> */}
             <Route path="/" element={<Main />} />
-            <Route path="/upload" element={<Upload />} />
-            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/manipulate" element={<Upload />} />
             <Route path="*" element={<Main />} />
           </Route>
         </Routes>
