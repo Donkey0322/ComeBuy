@@ -193,3 +193,4 @@ CREATE TABLE aggregateSalesDayRegion(
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
+
