@@ -1,22 +1,16 @@
 import pandas as pd
 import psycopg2
-# from backend.config import db_config
+from config import db_config
 
-
-# conn = psycopg2.connect(
-#     host=db_config.host,
-#     port=db_config.port,
-#     user=db_config.username,
-#     password=db_config.password,
-#     database=db_config.db_name,
-# )
 
 conn = psycopg2.connect(
-    host="localhost",
-    database="comebuy_db",
-    port='5433',
-    user="dev",
-    password="dev")
+    host=db_config.host,
+    port=db_config.port,
+    user=db_config.username,
+    password=db_config.password,
+    database=db_config.db_name,
+)
+cursor = conn.cursor()
 
 def query(q, conn):
     try:
@@ -128,7 +122,6 @@ temp_sales_df['drink'] = temp_sales_df['drink'].apply(lambda x: drinks[x])
 temp_sales_df['taste'] = temp_sales_df['taste'].apply(lambda x: split_tolist(x))
 temp_sales_df['topping'] = temp_sales_df['topping'].apply(lambda x: split_tolist(x))
 
-cursor = conn.cursor()
 data_list = temp_sales_df.values.tolist()
 args = ','.join(cursor.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", i).decode('utf-8')
                 for i in data_list)
@@ -143,4 +136,6 @@ temp_all_df['taste'] = temp_all_df['taste'].apply(lambda x: '/'.join(x) if type(
 temp_all_df['topping'] = temp_all_df['topping'].apply(lambda x: '/'.join(x) if type(x) == list else x)
 
 insert(temp_all_df)
+query('DELETE FROM tempSales', conn)
+conn.close()
 print('done')
