@@ -1,16 +1,16 @@
-import React, { useState } from "react";
 import {
   Box,
-  Chip,
   Button,
+  Chip,
   Dialog,
-  Typography,
-  Slide,
   FormLabel,
+  Slide,
+  Typography,
 } from "@mui/material";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
 import { useCondition } from "../../hooks/useCondition";
 import Modal from "./Modal";
-import PropTypes from "prop-types";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
@@ -102,7 +102,7 @@ const Index = () => {
             <Chip
               label={c.name}
               onDelete={
-                c.level !== "all"
+                c.name !== "全台"
                   ? () => deleteLocationCondition(c.name, c.level)
                   : undefined
               }

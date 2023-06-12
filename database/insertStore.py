@@ -1,5 +1,6 @@
-import psycopg2
 import json
+
+import psycopg2
 from config import db_config
 
 conn = psycopg2.connect(
@@ -32,8 +33,9 @@ def query(q, conn):
         print('err', error)
 
 
-with open('location.json') as json_file:
-    stores = json.load(json_file)['全台']
+with open('location.json', encoding="utf-8") as json_file:
+    stores = json.load(json_file)
+    stores = stores["全台"]
 
 sql = '''select * from regions'''
 r = select(sql, conn)
