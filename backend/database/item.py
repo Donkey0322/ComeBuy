@@ -18,7 +18,6 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
     a.append('s2.name in {}'.format(sweet_str) if data.sweets else None)
     a.append('i.name in {}'.format(ice_str) if data.ices else None)
     q = ' or '.join([x for x in a if x is not None])
-    print(q)
     if (time == 'hour'):
         table_query = table_query.replace('day', 'hour')
     sql = f"""

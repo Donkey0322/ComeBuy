@@ -145,7 +145,7 @@ async def bar_item(period: int = Body(..., embed=True)):
             if j[0] <= i['start_date'] <= j[1]:
                 i['start_date'] = j[0]
                 i['end_date'] = j[1]
-  
+                
     return result
 
 
