@@ -56,14 +56,16 @@ def insert(df):
         dataHourTW = []
         dataDayTW = []
         if i == 'region':
+            sql = 'select id from regions  where name = \'全台\''
+            TWid = (select(sql, conn)[0][0])
             aggregateHourTW = df.groupby(['date', 'time', 'drink', 'ice', 'sweet', 'taste', 'topping'], as_index=False)[['price', 'amount']].sum()
             aggregateDayTW = df.groupby(['date', 'drink', 'ice', 'sweet', 'taste', 'topping'], as_index=False)[['price', 'amount']].sum()
             aggregateDayTW['topping'] = aggregateDayTW['topping'].apply(lambda x: split_tolist(x) if type(x) == str else None)
             aggregateDayTW['taste'] = aggregateDayTW['taste'].apply(lambda x: split_tolist(x) if type(x) == str else None)
             aggregateHourTW['topping'] = aggregateHourTW['topping'].apply(lambda x: split_tolist(x) if type(x) == str else None)
             aggregateHourTW['taste'] = aggregateHourTW['taste'].apply(lambda x: split_tolist(x) if type(x) == str else None)
-            aggregateHourTW.insert(loc=0, column='region', value=['6']*len(aggregateHourTW))
-            aggregateDayTW.insert(loc=0, column='region', value=['6']*len(aggregateDayTW))
+            aggregateHourTW.insert(loc=0, column='region', value=[TWid]*len(aggregateHourTW))
+            aggregateDayTW.insert(loc=0, column='region', value=[TWid]*len(aggregateDayTW))
             dataHourTW = list(aggregateHourTW.itertuples(index=False, name=None))
             dataDayTW = list(aggregateDayTW.itertuples(index=False, name=None))
    
