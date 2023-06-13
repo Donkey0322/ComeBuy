@@ -1,26 +1,20 @@
+import HandymanIcon from "@mui/icons-material/Handyman";
+import HomeIcon from "@mui/icons-material/Home";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import HomeIcon from "@mui/icons-material/Home";
-import WcIcon from "@mui/icons-material/Wc";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
-import GradingIcon from "@mui/icons-material/Grading";
-import CategoryIcon from "@mui/icons-material/Category";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { Link, useLocation } from "react-router-dom";
 
 const items = [
   {
-    name: "Home",
+    name: "首頁",
     icon: <HomeIcon />,
     to: "/",
   },
   {
-    name: "Upload",
-    icon: <FileUploadIcon />,
-    to: "/upload",
+    name: "系統操作",
+    icon: <HandymanIcon />,
+    to: "/manipulate",
   },
 ];
 

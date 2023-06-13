@@ -208,7 +208,7 @@ const DistrictModal = ({ handleModalClose }) => {
           <Typography sx={{ mr: 2 }} variant="h6" component="div" noWrap>
             品項
           </Typography>
-          <Search onKeyDown={handleSearchEnter}>
+          {/* <Search onKeyDown={handleSearchEnter}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -218,7 +218,7 @@ const DistrictModal = ({ handleModalClose }) => {
               value={searchWord}
               onChange={handleSearchChange}
             />
-          </Search>
+          </Search> */}
           <Button
             autoFocus
             color="inherit"

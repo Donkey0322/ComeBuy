@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { TextField, Zoom, Stack, Button } from "@mui/material";
 import {
   DatePicker,
   LocalizationProvider,
   MobileTimePicker as TimePicker,
 } from "@mui/x-date-pickers";
-import { TextField, Zoom, Stack, Button } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
 import { useCondition } from "../../hooks/useCondition";
+// import "dayjs/locale/zh-cn";
 
 export default function ResponsiveDateRangePickers() {
   const { condition, setCondition } = useCondition();
@@ -19,14 +20,22 @@ export default function ResponsiveDateRangePickers() {
       ...prev,
       time: { ...prev.time, date: { ...prev.time.date, [name]: e } },
     }));
-    // console.log(e.format());
   };
   const handleTimeChange = (name) => (e) => {
+    let time =
+      moment(e.toISOString()).format("HH") === "23"
+        ? moment(e.toISOString()).format("HH:mm")
+        : moment(e.toISOString()).format("HH") + ":00";
     setCondition((prev) => ({
       ...prev,
-      time: { ...prev.time, time: { ...prev.time.time, [name]: e } },
+      time: {
+        ...prev.time,
+        time: {
+          ...prev.time.time,
+          [name]: dayjs(moment(time, "HH:mm")),
+        },
+      },
     }));
-    console.log(e);
   };
   const handleRecentClick = () => {
     setCondition((prev) => ({
@@ -77,8 +86,6 @@ export default function ResponsiveDateRangePickers() {
         />
         <p>-</p>
         <DatePicker
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          // slots={<TextField />}
           value={condition.time.date?.end ?? null}
           label={"結束日期"}
           minDate={condition.time.date?.start ?? null}
@@ -96,31 +103,14 @@ export default function ResponsiveDateRangePickers() {
               onChange={handleTimeChange("start")}
               label={"開始時間"}
               value={condition.time.time?.start ?? null}
-              // views={
-              //   condition.time.time?.start.$H === 23
-              //     ? ["hours", "minutes"]
-              //     : ["hours"]
-              // }
               minutesStep={condition.time.time?.start.$H === 23 ? 59 : 60}
             />
             <p>-</p>
             <TimePicker
-              // defaultValue={dayjs(dayjs().format().slice(0, 11) + "T23:59")}
               label={"結束時間"}
               onChange={handleTimeChange("end")}
               minTime={condition.time.time?.start ?? null}
               value={condition.time.time?.end ?? null}
-              // views={
-              //   condition.time.time?.end.$H === 23
-              //     ? ["hours", "minutes"]
-              //     : ["hours"]
-              // }
-              // onAccept={()=>{}}
-              // shouldDisableTime={(value, view) =>
-              //   view === "minutes" &&
-              //   value.hour() !== 23 &&
-              //   value.minute() !== 0
-              // }
               minutesStep={condition.time.time?.end.$H === 23 ? 59 : 60}
             />
           </Stack>
