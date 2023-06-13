@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 from config import app_config
 
 app = FastAPI(
@@ -39,5 +39,8 @@ async def app_shutdown():
     
 import processor.route
 processor.route.register_routers(app)
+
+app.mount("/", StaticFiles(directory='../frontend/build', html=True), name='build')
+
 
 

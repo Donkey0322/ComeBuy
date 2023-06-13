@@ -1,7 +1,3 @@
-#import exceptions as exc  # noqa
-
-import asyncpg
-
 from . import pool_handler
 
 async def get() -> object:
@@ -13,58 +9,40 @@ async def get() -> object:
     join districts d on stores.district = d.id
     order by r.name;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-        data['places'] = result
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
+    data['places'] = result
     
     sql = '''
     select distinct c.name as category, drinks.name as drink from drinks
     join categories c on drinks.category = c.id
     order by c.name;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-        data['drinks'] = result
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
+    data['drinks'] = result
     
     sql = '''
     select distinct sweets.name from sweets;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-        data['sweets'] = result
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
+    data['sweets'] = result
     
     sql = '''
     select distinct ices.name from ices;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-        data['ices'] = result
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
+    data['ices'] = result
     
     sql = '''
     select distinct toppings.name from toppings;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-        data['toppings'] = result
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
+    data['toppings'] = result
     
     sql = '''
     select distinct tastes.name from tastes;
     '''
-    try:
-        result = await pool_handler.pool.fetch(sql)
-        data['tastes'] = result
-    except asyncpg.exceptions.UniqueViolationError:
-        return "db failed"
+    result = await pool_handler.pool.fetch(sql)
+    data['tastes'] = result
     
     return data
     
