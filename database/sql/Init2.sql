@@ -95,7 +95,11 @@ VALUES ('正常糖'),
        ('半糖'),
        ('微糖'),
        ('1分'),
-       ('無糖');
+       ('無糖'),
+       ('多蜜'),
+       ('少蜜'),
+       ('半蜜'),
+       ('微蜜');
 
 INSERT INTO ices (name)
 VALUES ('正常冰'),
@@ -120,100 +124,11 @@ VALUES ('原葉鮮萃茶'),
        ('隱藏商品'),
        ('冷泡茶');
 
-insert into drinks (name, category, status) values ('鮮萃大麥紅茶', 1, 1);
-insert into drinks (name, category, status) values ('海神', 1, 1);
-insert into drinks (name, category, status) values ('玩火', 1, 1);
-insert into drinks (name, category, status) values ('四季春', 1, 1);
-insert into drinks (name, category, status) values ('烏龍綠茶', 1, 1);
-insert into drinks (name, category, status) values ('碧螺春', 1, 1);
-insert into drinks (name, category, status) values ('金萱茶', 1, 1);
-insert into drinks (name, category, status) values ('玫瑰普洱', 1, 1);
-insert into drinks (name, category, status) values ('茉莉烏龍', 1, 1);
-insert into drinks (name, category, status) values ('斯里蘭卡烏瓦紅茶', 1, 1);
-insert into drinks (name, category, status) values ('熟滄觀音', 1, 1);
-insert into drinks (name, category, status) values ('東方美人', 1, 1);
-insert into drinks (name, category, status) values ('文山包種', 1, 1);
-insert into drinks (name, category, status) values ('白桃蜜烏龍', 1, 1);
-insert into drinks (name, category, status) values ('洛神蜜香紅茶', 1, 1);
-insert into drinks (name, category, status) values ('桂花四季春', 1, 1);
-insert into drinks (name, category, status) values ('紅茶拿鐵', 2, 1);
-insert into drinks (name, category, status) values ('觀音拿鐵', 2, 1);
-insert into drinks (name, category, status) values ('金萱拿鐵', 2, 1);
-insert into drinks (name, category, status) values ('烏龍拿鐵', 2, 1);
-insert into drinks (name, category, status) values ('絕代雙Q奶茶', 3, 1);
-insert into drinks (name, category, status) values ('招牌奶茶', 3, 1);
-insert into drinks (name, category, status) values ('黃金奶綠', 3, 1);
-insert into drinks (name, category, status) values ('珍珠奶茶', 3, 1);
-insert into drinks (name, category, status) values ('鮮萃大麥奶茶', 3, 1);
-insert into drinks (name, category, status) values ('海神奶茶', 3, 1);
-insert into drinks (name, category, status) values ('玩火奶茶', 3, 1);
-insert into drinks (name, category, status) values ('玫瑰普洱奶茶', 3, 1);
-insert into drinks (name, category, status) values ('粉條奶茶', 3, 1);
-insert into drinks (name, category, status) values ('仙草凍奶茶', 3, 1);
-insert into drinks (name, category, status) values ('桂花奶綠', 3, 1);
-insert into drinks (name, category, status) values ('港式厚奶', 3, 1);
-insert into drinks (name, category, status) values ('觀音厚奶', 3, 1);
-insert into drinks (name, category, status) values ('經典可可', 3, 1);
-insert into drinks (name, category, status) values ('宇治抹茶', 3, 1);
-insert into drinks (name, category, status) values ('抹茶拿鐵', 3, 1);
-insert into drinks (name, category, status) values ('迷你珍珠奶茶', 3, 1);
-insert into drinks (name, category, status) values ('錫蘭紅茶', 4, 1);
-insert into drinks (name, category, status) values ('茉莉綠茶', 4, 1);
-insert into drinks (name, category, status) values ('蜂蜜紅/綠茶', 4, 1);
-insert into drinks (name, category, status) values ('玉荷冰綠', 4, 1);
-insert into drinks (name, category, status) values ('檸檬冰茶(紅/綠)', 4, 1);
-insert into drinks (name, category, status) values ('梅果茶', 4, 1);
-insert into drinks (name, category, status) values ('養樂多綠茶', 4, 1);
-insert into drinks (name, category, status) values ('百香搖果樂', 4, 1);
-insert into drinks (name, category, status) values ('蘋果冰茶', 4, 1);
-insert into drinks (name, category, status) values ('鳳梨冰茶', 4, 1);
-insert into drinks (name, category, status) values ('芭樂檸檬綠', 4, 1);
-insert into drinks (name, category, status) values ('超桔霸氣飲', 5, 1);
-insert into drinks (name, category, status) values ('蜂蜜蘆薈', 5, 1);
-insert into drinks (name, category, status) values ('金桔檸檬', 5, 1);
-insert into drinks (name, category, status) values ('荔枝玉露', 5, 1);
-insert into drinks (name, category, status) values ('纖美小紫蘇', 5, 1);
-insert into drinks (name, category, status) values ('芭樂多多', 5, 1);
-insert into drinks (name, category, status) values ('特調咖啡', 6, 1);
-insert into drinks (name, category, status) values ('莊園拿鐵(12oz/16oz)', 7, 1);
-insert into drinks (name, category, status) values ('精品招牌咖啡(12oz/16oz)', 7, 1);
-insert into drinks (name, category, status) values ('經典美式咖啡(12oz/16oz)', 7, 1);
-insert into drinks (name, category, status) values ('咖啡冰沙(16oz)', 7, 1);
-insert into drinks (name, category, status) values ('美式經典(12oz)', 8, 1);
-insert into drinks (name, category, status) values ('原味拿鐵(12oz)', 8, 1);
-insert into drinks (name, category, status) values ('咖啡冰沙(16oz)', 8, 1);
-insert into drinks (name, category, status) values ('檸檬愛玉', 9, 1);
-insert into drinks (name, category, status) values ('百香果冰沙', 9, 1);
-insert into drinks (name, category, status) values ('金芒果優酪', 9, 1);
-insert into drinks (name, category, status) values ('葡萄柚綠茶', 9, 1);
-insert into drinks (name, category, status) values ('七巧歐蕾', 9, 1);
-insert into drinks (name, category, status) values ('青檸香柚QQ', 9, 1);
-insert into drinks (name, category, status) values ('桂圓紅棗', 10, 1);
-insert into drinks (name, category, status) values ('暖薑茶', 10, 1);
-insert into drinks (name, category, status) values ('暖薑奶茶', 10, 1);
-insert into drinks (name, category, status) values ('熱檸茶', 10, 1);
-insert into drinks (name, category, status) values ('熱桔茶', 10, 1);
-insert into drinks (name, category, status) values ('紫米奶茶', 10, 1);
-insert into drinks (name, category, status) values ('紫米可可', 10, 1);
-insert into drinks (name, category, status) values ('黑糖薑汁可可', 10, 1);
-insert into drinks (name, category, status) values ('百香冰茶', 11, 1);
-insert into drinks (name, category, status) values ('蜂蜜檸檬', 11, 1);
-insert into drinks (name, category, status) values ('珍珠鮮奶', 11, 1);
-insert into drinks (name, category, status) values ('直火烏龍奶茶', 11, 1);
-insert into drinks (name, category, status) values ('檸檬觀音', 11, 1);
-insert into drinks (name, category, status) values ('檸檬原汁', 11, 1);
-insert into drinks (name, category, status) values ('檸檬多多', 11, 1);
-insert into drinks (name, category, status) values ('仙草凍拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('茉莉烏龍拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('四季春拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('玫瑰普洱拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('文山拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('海神拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('玩火拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('大麥拿鐵', 11, 1);
-insert into drinks (name, category, status) values ('四季春(冷泡茶)', 12, 1);
-insert into drinks (name, category, status) values ('蜜香紅茶(冷泡茶)', 12, 1);
-insert into drinks (name, category, status) values ('東方美人(冷泡茶)', 12, 1);
+insert into stores(region, county, district, name, comebuy_id) values (1, 1, 1, '新店光明店', 'A0001');
+insert into stores(region, county, district, name, comebuy_id) values (4, 10, 51, '花蓮中山店', 'C0001');
+
+insert into drinks (name, category, status, comebuy_id) values ('鮮萃大麥紅茶', 1, 1, 'AC001');
+insert into drinks (name, category, status, comebuy_id) values ('海神', 1, 1, 'AC002');
 
 insert into toppings(name) values ('珍珠');
 insert into toppings(name) values ('椰果');
