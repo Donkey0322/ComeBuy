@@ -1,22 +1,20 @@
-import { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import MenuIcon from "@mui/icons-material/Menu";
 import {
-  styled,
-  Drawer as MuiDrawer,
   Box,
-  AppBar as MuiAppBar,
-  Toolbar,
-  List,
-  Typography,
   Divider,
   IconButton,
+  List,
+  AppBar as MuiAppBar,
+  Drawer as MuiDrawer,
   Paper,
+  Toolbar,
+  Typography,
+  styled,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import SieveType from "./Optoins/SieveType";
+import { useState } from "react";
+import { Link, Outlet } from "react-router-dom";
 import SideBarItems from "./SideBarItems";
-import Visualization from "./Visualization";
 
 const drawerWidth = 240;
 
@@ -50,16 +48,17 @@ const Drawer = styled(MuiDrawer, {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
+    overflowX: "hidden",
     boxSizing: "border-box",
     ...(!open && {
-      overflowX: "scroll",
+      // overflowX: "scroll",
       transition: theme.transitions.create("width", {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      width: theme.spacing(7),
+      width: theme.spacing(5.5),
       [theme.breakpoints.up("sm")]: {
-        width: theme.spacing(9),
+        width: theme.spacing(7.5),
       },
     }),
   },
@@ -129,7 +128,7 @@ function AppFrame() {
               : theme.palette.grey[900],
           flexGrow: 1,
           minHeight: "100vh",
-          overflow: "auto",
+          // overflow: "auto",
         }}
       >
         <Toolbar />

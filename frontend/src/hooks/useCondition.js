@@ -1,6 +1,4 @@
-import { useState, useContext, createContext, useEffect } from "react";
-import { getConst } from "../middleware";
-
+import { createContext, useContext, useEffect, useState } from "react";
 /*測試用*/
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
@@ -98,28 +96,13 @@ const ConditionProvider = (props) => {
   };
 
   useEffect(() => {
-    if (!DATA) {
-      (async () => {
-        try {
-          console.log("Hi");
-          const result = await getConst();
-          console.log(result);
-          SETDATA(result);
-        } catch (error) {
-          throw error;
-        }
-      })();
-    }
-  }, [DATA]);
-
-  useEffect(() => {
     if (!condition.location.length) {
       setCondition((prev) => ({
         ...prev,
         location: [
           {
             name: "全台",
-            level: "all",
+            level: "region",
             route: [],
           },
         ],
@@ -135,6 +118,7 @@ const ConditionProvider = (props) => {
         systemState,
         setSystemState,
         setCondition,
+        SETDATA,
         addLocationCondtion,
         deleteLocationCondition,
         addBeverageCondition,
