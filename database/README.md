@@ -27,7 +27,7 @@ INSERT INTO tempSales(store, date, time, drink, ice, sweet, topping, taste, pric
 ```
 - 補充說明： 
     - 目前本資料庫的門市以 /database/location.json 中的門市為主。
-    - 飲品、冰量、甜度、口味、加料則以 /database/init2.sql 中為主。
+    - 飲品、冰量、甜度、口味、加料則以 /database/sqls/init2.sql 中為主。
     - 請勿匯入不存在於以上檔案中的資料。
 
 5. 匯入完成後，在此資料夾下執行 aggregate.py
