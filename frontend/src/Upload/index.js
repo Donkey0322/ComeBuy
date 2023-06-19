@@ -12,10 +12,10 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useState } from "react";
+import { useCondition } from "../hooks/useCondition";
 
 const SIEVE = {
   store: "地區",
-  category: "品項種類",
   drink: "品項",
   sweet: "甜度",
   ice: "冰塊",
@@ -25,7 +25,6 @@ const SIEVE = {
 
 const LABEL = {
   store: ["區域", "縣市", "地方區域", "分店名稱"],
-  category: ["品項種類名稱"],
   drink: ["品項種類", "品項名稱"],
   sweet: ["甜度名稱"],
   ice: ["冰塊名稱"],
@@ -36,17 +35,38 @@ const LABEL = {
 const Upload = () => {
   const [sieve, setSieve] = useState("");
   const [data, setData] = useState(["", "", "", ""]);
+  const [newData, setNewData] = useState(["", "", "", ""]);
   const [send, setSend] = useState(false);
+  let { DATA } = useCondition();
+
+  DATA = { ...DATA, store: DATA["全台"], drink: DATA["飲品"] };
+
+  const FetchMenu = (index) => {
+    let element = DATA[sieve];
+    for (let i = 0; i < index; i++) {
+      element = element[data[i]];
+    }
+    return Object.keys(element);
+  };
 
   const handleSieveChange = (e) => {
     setData(["", "", "", ""]);
+    setNewData(["", "", "", ""]);
     const { value } = e.target;
     setSieve(value);
   };
 
   const handleDataChange = (index) => (e) => {
     const { value } = e.target;
-    setData((prev) => prev.with(index, value));
+    setData((prev) => [
+      ...prev.with(index, value).slice(0, index + 1),
+      ...new Array(3 - index).fill([""]).flat(),
+    ]);
+  };
+
+  const handleNewDataChange = (index) => (e) => {
+    const { value } = e.target;
+    setNewData((prev) => prev.with(index, value));
   };
 
   const handleSaveClick = async () => {
@@ -56,8 +76,38 @@ const Upload = () => {
       [sieve]:
         LABEL[sieve].length === 1
           ? data[0]
-          : data.slice(0, LABEL[sieve].length),
+          : data
+              .slice(0, LABEL[sieve].length)
+              .map((m, index) => (m && m !== "其他" ? m : newData[index])),
     });
+  };
+
+  const checkValidation = (index) => {
+    let error = false;
+    let helperText = "";
+    switch (sieve) {
+      case "store":
+        if (
+          index === 3 &&
+          !data[index].includes("店") &&
+          !newData[index].includes("店")
+        ) {
+          error = true;
+          helperText = "輸入請包涵'店'";
+        }
+      case "drink":
+        if (
+          newData.slice(0, index).every((e) => !e) &&
+          FetchMenu(index).includes(newData[index])
+        ) {
+          error = true;
+          helperText = "你輸入了選單內的選項，請從選項中選取。";
+        }
+        break;
+      default:
+        break;
+    }
+    return { error, helperText };
   };
 
   return (
@@ -75,8 +125,8 @@ const Upload = () => {
           </ListSubheader>
         }
       >
-        <ListItem sx={{ width: 250 }}>
-          <FormControl fullWidth>
+        <ListItem>
+          <FormControl sx={{ width: 250 }}>
             <InputLabel>篩選條件</InputLabel>
             <Select value={sieve} label="篩選條件" onChange={handleSieveChange}>
               {Object.keys(SIEVE).map((s, index) => (
@@ -88,16 +138,65 @@ const Upload = () => {
           </FormControl>
         </ListItem>
         {sieve &&
-          LABEL[sieve].map((l, index) => (
-            <ListItem sx={{ width: 250 }} key={index}>
-              <TextField
-                label={l}
-                variant="outlined"
-                value={data[index]}
-                onChange={handleDataChange(index)}
-              />
-            </ListItem>
-          ))}
+          LABEL[sieve].map((l, index, array) => {
+            let prop = {
+              label: l,
+              variant: "outlined",
+              value: data[index],
+              onChange: handleDataChange(index),
+            };
+            let newProp = {
+              label: l,
+              variant: "outlined",
+              value: newData[index],
+              onChange: handleNewDataChange(index),
+            };
+            let Component =
+              array.length > 1 ? (
+                (index === 0 ||
+                  (data[index - 1] && data[index - 1] !== "其他") ||
+                  newData[index - 1]) &&
+                (data.slice(0, index)?.includes("其他") ? (
+                  <TextField
+                    {...newProp}
+                    {...checkValidation(index)}
+                    sx={{ width: 250 }}
+                  />
+                ) : array.length === index + 1 ? (
+                  <TextField
+                    {...prop}
+                    {...checkValidation(index)}
+                    sx={{ width: 250 }}
+                  />
+                ) : (
+                  <Box sx={{ display: "flex", columnGap: 1 }}>
+                    <FormControl sx={{ width: 250 }}>
+                      <InputLabel>{l}</InputLabel>
+                      <Select {...prop}>
+                        {FetchMenu(index).map((s, index) => (
+                          <MenuItem value={s} key={index}>
+                            {s}
+                          </MenuItem>
+                        ))}
+                        <MenuItem value="其他">其他</MenuItem>
+                      </Select>
+                    </FormControl>
+                    {data[index] === "其他" && (
+                      <TextField {...newProp} {...checkValidation(index)} />
+                    )}
+                  </Box>
+                ))
+              ) : (
+                <TextField {...prop} />
+              );
+            return (
+              Component && (
+                <ListItem sx={{ minWidth: 250 }} key={index}>
+                  {Component}
+                </ListItem>
+              )
+            );
+          })}
 
         <ListItem sx={{ width: 250 }}>
           <LoadingButton
@@ -109,7 +208,12 @@ const Upload = () => {
               />
             }
             disabled={
-              sieve ? data.slice(0, LABEL[sieve].length).some((e) => !e) : true
+              sieve
+                ? data
+                    .slice(0, LABEL[sieve].length)
+                    .map((m, index) => (m && m !== "其他" ? m : newData[index]))
+                    .some((e) => !e)
+                : true
             }
             variant="contained"
             onClick={handleSaveClick}
