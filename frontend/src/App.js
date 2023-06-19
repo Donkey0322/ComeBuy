@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppFrame from "./AppFrame";
 import Main from "./Main";
-import Upload from "./Upload";
+import Manipulate from "./Manipulate";
 import { useCondition } from "./hooks/useCondition";
 import { getConst } from "./middleware";
 
@@ -29,7 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<AppFrame />}>
             <Route path="/" element={<Main />} />
-            <Route path="/manipulate" element={<Upload />} />
+            <Route path="/manipulate" element={<Manipulate />} />
             <Route path="*" element={<Main />} />
           </Route>
         </Routes>
