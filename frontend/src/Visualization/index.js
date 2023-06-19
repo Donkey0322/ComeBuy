@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Box, Tab, Button } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import StoreBeverage from "./StoreBeverage";
-import LineChartAnalysis from "./LineChartAnalysis";
-import BarChartAnalysis from "./BarChartAnalysis";
-import { useCondition } from "../hooks/useCondition";
-import moment from "moment";
+import { Box, Button, Tab } from "@mui/material";
 import _ from "lodash";
-import { searchItem, getLineChart, getBarChart } from "../middleware";
+import moment from "moment";
+import React, { useRef, useState } from "react";
+import { useCondition } from "../hooks/useCondition";
+import { getBarChart, getLineChart, searchItem } from "../middleware";
+import BarChartAnalysis from "./BarChartAnalysis";
+import LineChartAnalysis from "./LineChartAnalysis";
+import StoreBeverage from "./StoreBeverage";
 
 export default function LabTabs() {
   const [value, setValue] = useState("1");
@@ -17,6 +17,13 @@ export default function LabTabs() {
   const ref = useRef();
 
   const checkValidCondition = () => {
+    if (
+      Object.keys(condition.time).length === 0 ||
+      condition.location.length === 0 ||
+      condition.beverage.length === 0
+    )
+      return false;
+
     const level = condition.location?.[0]?.level;
     return level ? condition.location.every((e) => e.level === level) : true;
   };
