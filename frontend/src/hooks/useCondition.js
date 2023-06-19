@@ -22,8 +22,8 @@ const ConditionProvider = (props) => {
         end: dayjs(dayjs().format().slice(0, 11) + "T23:59"),
       },
       date: {
-        start: dayjs("2023-03-23"),
-        end: dayjs("2023-03-30"),
+        start: dayjs("2023-01-01"),
+        end: dayjs("2023-01-03"),
       },
     },
     location: [
@@ -43,8 +43,8 @@ const ConditionProvider = (props) => {
       { name: "海神", category: "原葉鮮萃茶" },
       { name: "鮮萃大麥紅茶", category: "原葉鮮萃茶" },
     ],
-    ice: ["正常冰"],
-    sweet: ["正常糖"],
+    ice: [],
+    sweet: [],
     flavor: [],
     topping: [],
     part: false,
