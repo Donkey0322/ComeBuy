@@ -3,7 +3,9 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   FormControl,
+  InputAdornment,
   InputLabel,
+  List,
   ListItem,
   MenuItem,
   Select,
@@ -32,9 +34,9 @@ const LABEL = {
 
 export default function Rename() {
   const [sieve, setSieve] = useState("");
-  const [data, setData] = useState(["", "", "", ""]);
-  const [newData, setNewData] = useState(["", "", "", ""]);
+  const [data, setData] = useState(Array(4).fill({ value: "", new: "" }));
   const [send, setSend] = useState(false);
+  const [error, setError] = useState(false);
   let { DATA } = useCondition();
 
   DATA = { ...DATA, store: DATA["全台"], drink: DATA["飲品"] };
@@ -42,74 +44,83 @@ export default function Rename() {
   const FetchMenu = (index) => {
     let element = DATA[sieve];
     for (let i = 0; i < index; i++) {
-      element = element[data[i]];
+      element = element[data[i].value];
     }
-    return Object.keys(element);
+    return Array.isArray(element) ? element : Object.keys(element);
   };
 
-  const handleSieveChange = (e) => {
-    setData(["", "", "", ""]);
-    setNewData(["", "", "", ""]);
-    const { value } = e.target;
-    setSieve(value);
-  };
-
-  const handleDataChange = (index) => (e) => {
-    const { value } = e.target;
-    setData((prev) => [
-      ...prev.with(index, value).slice(0, index + 1),
-      ...new Array(3 - index).fill([""]).flat(),
-    ]);
-  };
-
-  const handleNewDataChange = (index) => (e) => {
-    const { value } = e.target;
-    setNewData((prev) => prev.with(index, value));
-  };
-
-  const handleSaveClick = async () => {
-    if (!send) setSend(true);
-    else return;
-    console.log({
-      [sieve]:
-        LABEL[sieve].length === 1
-          ? data[0]
-          : data
-              .slice(0, LABEL[sieve].length)
-              .map((m, index) => (m && m !== "其他" ? m : newData[index])),
-    });
-  };
-
-  const checkValidation = (index) => {
+  const checkValidation = (index, value = undefined) => {
     let error = false;
     let helperText = "";
     switch (sieve) {
       case "store":
         if (
           index === 3 &&
-          !data[index].includes("店") &&
-          !newData[index].includes("店")
+          (value ?? data[index].new).charAt(
+            (value ?? data[index].new).length - 1
+          ) === "店"
         ) {
           error = true;
-          helperText = "輸入請包涵'店'";
+          helperText = "結尾請不要輸入'店'";
         }
       case "drink":
         if (
-          newData.slice(0, index).every((e) => !e) &&
-          FetchMenu(index).includes(newData[index])
+          data
+            .map((m) => m.new)
+            .slice(0, index)
+            .every((e) => !e) &&
+          FetchMenu(index).includes(value ?? data[index].new)
         ) {
           error = true;
           helperText = "你輸入了選單內的選項，請從選項中選取。";
         }
         break;
-      default:
-        break;
     }
     return { error, helperText };
   };
 
+  const handleSieveChange = ({ target: { value } }) => {
+    setData(Array(4).fill({ value: "", new: "" }));
+    setSieve(value);
+  };
+  const handleDataChange =
+    (index, target = "value") =>
+    ({ target: { value } }) => {
+      setData((prev) => [
+        ...prev
+          .with(index, {
+            ...prev[index],
+            [target]: value,
+          })
+          .slice(0, index + 1),
+        ...Array(3 - index).fill({ value: "", new: "" }),
+      ]);
+      if (target === "new" || error)
+        setError(checkValidation(index, value).error);
+    };
+
+  const handleSaveClick = async () => {
+    if (!send) setSend(true);
+    else return;
+    // console.log({
+    //   [sieve]:
+    //     LABEL[sieve].length === 1
+    //       ? data[0]
+    //       : data
+    //           .slice(0, LABEL[sieve].length)
+    //           .map((m, index) => (m && m !== "其他" ? m : newData[index])),
+    // });
+  };
+
+  const handleSelectCancel = (index) => () => {
+    setData((prev) => [
+      ...prev.slice(0, index),
+      ...Array(4 - index).fill({ value: "", new: "" }),
+    ]);
+  };
+
   return (
-    <>
+    <List sx={{ py: 0 }}>
       <ListItem>
         <FormControl sx={{ width: 250 }}>
           <InputLabel>篩選條件</InputLabel>
@@ -123,57 +134,49 @@ export default function Rename() {
         </FormControl>
       </ListItem>
       {sieve &&
-        LABEL[sieve].map((l, index, array) => {
+        LABEL[sieve].map((l, index) => {
           let prop = {
             label: l,
             variant: "outlined",
-            value: data[index],
             onChange: handleDataChange(index),
           };
-          let newProp = {
-            label: l,
-            variant: "outlined",
-            value: newData[index],
-            onChange: handleNewDataChange(index),
-          };
-          let Component =
-            array.length > 1 ? (
-              (index === 0 ||
-                (data[index - 1] && data[index - 1] !== "其他") ||
-                newData[index - 1]) &&
-              (data.slice(0, index)?.includes("其他") ? (
-                <TextField
-                  {...newProp}
-                  {...checkValidation(index)}
-                  sx={{ width: 250 }}
-                />
-              ) : array.length === index + 1 ? (
+          let show = index === 0 || data[index - 1].new;
+          let Component = show && (
+            <Box
+              sx={{
+                display: "flex",
+                columnGap: 1,
+              }}
+            >
+              <FormControl sx={{ width: 250 }}>
+                <InputLabel>{l}</InputLabel>
+                <Select
+                  {...prop}
+                  value={data[index].value}
+                  onOpen={handleSelectCancel(index)}
+                >
+                  {FetchMenu(index).map((s, index) => (
+                    <MenuItem value={s} key={index}>
+                      {s}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {data[index].value && (
                 <TextField
                   {...prop}
                   {...checkValidation(index)}
-                  sx={{ width: 250 }}
+                  value={data[index].new}
+                  onChange={handleDataChange(index, "new")}
+                  InputProps={{
+                    endAdornment: index === 3 && (
+                      <InputAdornment position="end">店</InputAdornment>
+                    ),
+                  }}
                 />
-              ) : (
-                <Box sx={{ display: "flex", columnGap: 1 }}>
-                  <FormControl sx={{ width: 250 }}>
-                    <InputLabel>{l}</InputLabel>
-                    <Select {...prop}>
-                      {FetchMenu(index).map((s, index) => (
-                        <MenuItem value={s} key={index}>
-                          {s}
-                        </MenuItem>
-                      ))}
-                      <MenuItem value="其他">其他</MenuItem>
-                    </Select>
-                  </FormControl>
-                  {data[index] === "其他" && (
-                    <TextField {...newProp} {...checkValidation(index)} />
-                  )}
-                </Box>
-              ))
-            ) : (
-              <TextField {...prop} />
-            );
+              )}
+            </Box>
+          );
           return (
             Component && (
               <ListItem sx={{ minWidth: 250 }} key={index}>
@@ -191,20 +194,13 @@ export default function Rename() {
               sx={{ visibility: "hidden", display: send ? "block" : "none" }}
             />
           }
-          disabled={
-            sieve
-              ? data
-                  .slice(0, LABEL[sieve].length)
-                  .map((m, index) => (m && m !== "其他" ? m : newData[index]))
-                  .some((e) => !e)
-              : true
-          }
+          disabled={error || data.some((m) => m.value && !m.new)}
           variant="contained"
           onClick={handleSaveClick}
         >
           Save
         </LoadingButton>
       </ListItem>
-    </>
+    </List>
   );
 }
