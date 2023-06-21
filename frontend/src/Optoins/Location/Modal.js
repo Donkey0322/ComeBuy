@@ -24,6 +24,7 @@ const INDEXFORM = {
 
 function recursive_set(type, data, ...route) {
   if (route.length === 1) {
+    console.log(route[0]);
     return {
       ...data,
       [route[0]]:
@@ -34,7 +35,7 @@ function recursive_set(type, data, ...route) {
   } else {
     return {
       ...data,
-      [[route[0]]]: {
+      [route[0]]: {
         ...data[route[0]],
         children: recursive_set(
           type,
@@ -204,7 +205,20 @@ export default function Modal({ handleModalClose }) {
                 ? deleteLocationCondition
                 : () => {}
               : addLocationCondtion;
+
           func(route[index], INDEXFORM[Number(index) + 1], route.slice(0, -1));
+          if (
+            !(
+              condition.location.find(
+                (e) =>
+                  (e.name === route[index] &&
+                    e.level === INDEXFORM[Number(index) + 1]) ||
+                  e.route.includes(route[index])
+              ) || Number(index) + 1 !== route.length
+            )
+          ) {
+            console.log(route[index]);
+          }
         }
       }
     };
@@ -223,6 +237,7 @@ export default function Modal({ handleModalClose }) {
       }
     } else {
       for (const store of currentRoutes) {
+        console.log(store);
         handle(true)("chosen", ...store)();
       }
     }
