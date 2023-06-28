@@ -13,24 +13,8 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { useCondition } from "../hooks/useCondition";
-
-const SIEVE = {
-  store: "地區",
-  drink: "品項",
-  sweet: "甜度",
-  ice: "冰塊",
-  taste: "口味",
-  topping: "加料",
-};
-
-const LABEL = {
-  store: ["區域", "縣市", "地方區域", "分店名稱"],
-  drink: ["品項種類", "品項名稱"],
-  sweet: ["甜度名稱"],
-  ice: ["冰塊名稱"],
-  taste: ["口味名稱"],
-  topping: ["加料名稱"],
-};
+import { updateItem } from "../middleware";
+import { CONST_DATAKEY, KEY_MAP, LABEL, SIEVE } from "./constant";
 
 export default function Rename() {
   const [sieve, setSieve] = useState("");
@@ -39,10 +23,8 @@ export default function Rename() {
   const [error, setError] = useState(false);
   let { DATA } = useCondition();
 
-  DATA = { ...DATA, store: DATA["全台"], drink: DATA["飲品"] };
-
   const FetchMenu = (index) => {
-    let element = DATA[sieve];
+    let element = DATA[CONST_DATAKEY[sieve]];
     for (let i = 0; i < index; i++) {
       element = element[data[i].value];
     }
@@ -102,14 +84,20 @@ export default function Rename() {
   const handleSaveClick = async () => {
     if (!send) setSend(true);
     else return;
-    // console.log({
-    //   [sieve]:
-    //     LABEL[sieve].length === 1
-    //       ? data[0]
-    //       : data
-    //           .slice(0, LABEL[sieve].length)
-    //           .map((m, index) => (m && m !== "其他" ? m : newData[index])),
-    // });
+    const { status } = await updateItem(
+      data.reduce((acc, curr, index) => {
+        if (curr.value && curr.new)
+          acc[KEY_MAP[LABEL[sieve][index]]] = Object.values(curr).map((m) =>
+            m.replace(/店$/, "")
+          );
+        return acc;
+      }, {})
+    );
+    if (status === "success") {
+      setSieve("");
+      setData(Array(4).fill({ value: "", new: "" }));
+      setSend(false);
+    }
   };
 
   const handleSelectCancel = (index) => () => {
@@ -140,7 +128,7 @@ export default function Rename() {
             variant: "outlined",
             onChange: handleDataChange(index),
           };
-          let show = index === 0 || data[index - 1].new;
+          let show = index === 0 || data[index - 1].value;
           let Component = show && (
             <Box
               sx={{
@@ -154,6 +142,13 @@ export default function Rename() {
                   {...prop}
                   value={data[index].value}
                   onOpen={handleSelectCancel(index)}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 300,
+                      },
+                    },
+                  }}
                 >
                   {FetchMenu(index).map((s, index) => (
                     <MenuItem value={s} key={index}>
@@ -194,7 +189,7 @@ export default function Rename() {
               sx={{ visibility: "hidden", display: send ? "block" : "none" }}
             />
           }
-          disabled={error || data.some((m) => m.value && !m.new)}
+          disabled={error || data.map((m) => m.new).every((m) => !m)}
           variant="contained"
           onClick={handleSaveClick}
         >
