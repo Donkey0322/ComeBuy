@@ -13,24 +13,8 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { useCondition } from "../hooks/useCondition";
-
-const SIEVE = {
-  store: "地區",
-  drink: "品項",
-  sweet: "甜度",
-  ice: "冰塊",
-  taste: "口味",
-  topping: "加料",
-};
-
-const LABEL = {
-  store: ["區域", "縣市", "地方區域", "分店名稱"],
-  drink: ["品項種類", "品項名稱"],
-  sweet: ["甜度名稱"],
-  ice: ["冰塊名稱"],
-  taste: ["口味名稱"],
-  topping: ["加料名稱"],
-};
+import { newItem } from "../middleware";
+import { CONST_DATAKEY, KEY_MAP, LABEL, SIEVE } from "./constant";
 
 export default function Add() {
   const [sieve, setSieve] = useState("");
@@ -39,10 +23,8 @@ export default function Add() {
   const [error, setError] = useState(false);
   let { DATA } = useCondition();
 
-  DATA = { ...DATA, store: DATA["全台"], drink: DATA["飲品"] };
-
   const FetchMenu = (index) => {
-    let element = DATA[sieve];
+    let element = DATA[CONST_DATAKEY[sieve]];
     for (let i = 0; i < index; i++) {
       element = element[data[i].value];
     }
@@ -72,7 +54,7 @@ export default function Add() {
           FetchMenu(index).includes(value ?? data[index].else)
         ) {
           error = true;
-          helperText = "你輸入了選單內的選項，請從選項中選取。";
+          helperText = "你輸入了選單內的選項。";
         }
         break;
     }
@@ -102,14 +84,26 @@ export default function Add() {
   const handleSaveClick = async () => {
     if (!send) setSend(true);
     else return;
-    // console.log({
-    //   [sieve]:
-    //     LABEL[sieve].length === 1
-    //       ? data[0]
-    //       : data
-    //           .slice(0, LABEL[sieve].length)
-    //           .map((m, index) => (m && m !== "其他" ? m : newData[index])),
-    // });
+    const { status } = await newItem(
+      data.reduce((acc, curr, index) => {
+        if (curr.value)
+          acc[KEY_MAP[LABEL[sieve][index]]] = {
+            value:
+              curr[
+                curr.value === "其他" && index !== LABEL[sieve].length - 1
+                  ? "else"
+                  : "value"
+              ],
+            new: curr.value === "其他" || index === LABEL[sieve].length - 1,
+          };
+        return acc;
+      }, {})
+    );
+    if (status === "success") {
+      setSieve("");
+      setData(Array(4).fill({ value: "", else: "" }));
+      setSend(false);
+    }
   };
 
   return (
@@ -200,7 +194,12 @@ export default function Add() {
               sx={{ visibility: "hidden", display: send ? "block" : "none" }}
             />
           }
-          disabled={error}
+          disabled={
+            error ||
+            !sieve ||
+            !data[LABEL[sieve].length - 1].value ||
+            data.some((d) => d.value === "其他" && !d.else) //可忽略
+          }
           variant="contained"
           onClick={handleSaveClick}
         >

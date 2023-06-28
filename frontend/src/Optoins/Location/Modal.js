@@ -24,7 +24,6 @@ const INDEXFORM = {
 
 function recursive_set(type, data, ...route) {
   if (route.length === 1) {
-    console.log(route[0]);
     return {
       ...data,
       [route[0]]:

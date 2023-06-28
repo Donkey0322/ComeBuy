@@ -1,16 +1,16 @@
-import React from "react";
 import { Box, Chip } from "@mui/material";
-import styled from "styled-components";
 import {
   DataGrid,
-  GridToolbarContainer,
   GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridToolbarExport,
+  GridToolbarContainer,
   GridToolbarDensitySelector,
+  GridToolbarExport,
+  GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-import { useCondition } from "../hooks/useCondition";
 import moment from "moment";
+import React from "react";
+import styled from "styled-components";
+import { useCondition } from "../hooks/useCondition";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
@@ -44,11 +44,16 @@ const ConstraintsContainer = styled.div`
   align-items: center;
   column-gap: 0.5vmin;
   overflow-x: auto;
-  &::-webkit-scrollbar {
-    display: none;
+  ::-webkit-scrollbar {
+    height: 2px;
   }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  ::-webkit-scrollbar-thumb {
+    background-color: #d8d8d8;
+    height: 1px;
+    &:hover {
+      /* background-color: ; */
+    }
+  }
 `;
 
 const levelMap = {
