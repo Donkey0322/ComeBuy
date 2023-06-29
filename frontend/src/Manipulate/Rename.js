@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { useCondition } from "../hooks/useCondition";
-import { updateItem } from "../middleware";
+import { getConst, updateItem } from "../middleware";
 import { CONST_DATAKEY, KEY_MAP, LABEL, SIEVE } from "./constant";
 
 export default function Rename() {
@@ -21,7 +21,7 @@ export default function Rename() {
   const [data, setData] = useState(Array(4).fill({ value: "", new: "" }));
   const [send, setSend] = useState(false);
   const [error, setError] = useState(false);
-  let { DATA } = useCondition();
+  let { DATA, SETDATA } = useCondition();
 
   const FetchMenu = (index) => {
     let element = DATA[CONST_DATAKEY[sieve]];
@@ -94,6 +94,8 @@ export default function Rename() {
       }, {})
     );
     if (status === "success") {
+      const result = await getConst();
+      SETDATA(result);
       setSieve("");
       setData(Array(4).fill({ value: "", new: "" }));
       setSend(false);
