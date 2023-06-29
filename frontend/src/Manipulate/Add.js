@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { useCondition } from "../hooks/useCondition";
-import { newItem } from "../middleware";
+import { getConst, newItem } from "../middleware";
 import { CONST_DATAKEY, KEY_MAP, LABEL, SIEVE } from "./constant";
 
 export default function Add() {
@@ -21,7 +21,7 @@ export default function Add() {
   const [data, setData] = useState(Array(4).fill({ value: "", else: "" }));
   const [send, setSend] = useState(false);
   const [error, setError] = useState(false);
-  let { DATA } = useCondition();
+  let { DATA, SETDATA } = useCondition();
 
   const FetchMenu = (index) => {
     let element = DATA[CONST_DATAKEY[sieve]];
@@ -85,21 +85,24 @@ export default function Add() {
     if (!send) setSend(true);
     else return;
     const { status } = await newItem(
-      data.reduce((acc, curr, index) => {
+      data.reduce((acc, curr, index, array) => {
         if (curr.value)
           acc[KEY_MAP[LABEL[sieve][index]]] = {
-            value:
-              curr[
-                curr.value === "其他" && index !== LABEL[sieve].length - 1
-                  ? "else"
-                  : "value"
-              ],
-            new: curr.value === "其他" || index === LABEL[sieve].length - 1,
+            value: curr[curr.else ? "else" : "value"],
+            new: Boolean(
+              curr.else ||
+                array
+                  .map((m) => m.else)
+                  .slice(0, index)
+                  .some((e) => e)
+            ),
           };
         return acc;
       }, {})
     );
     if (status === "success") {
+      const result = await getConst();
+      SETDATA(result);
       setSieve("");
       setData(Array(4).fill({ value: "", else: "" }));
       setSend(false);
@@ -129,14 +132,19 @@ export default function Add() {
           };
           let show =
             index === 0 ||
-            (data[index - 1].value && data[index - 1].value !== "其他") ||
+            (data[index - 1].value &&
+              (data[index - 1].value !== "其他" ||
+                data
+                  .map((m) => m.else)
+                  .slice(0, index)
+                  .some((e) => e))) ||
             (data[index - 1].value === "其他" && data[index - 1].else);
           let Component =
             index + 1 === array.length ||
             data
               .slice(0, index)
-              ?.map((m) => m.value)
-              ?.includes("其他")
+              ?.map((m) => m.else)
+              ?.some((e) => e)
               ? show && (
                   <TextField
                     {...prop}
@@ -195,10 +203,8 @@ export default function Add() {
             />
           }
           disabled={
-            error ||
-            !sieve ||
-            !data[LABEL[sieve].length - 1].value ||
-            data.some((d) => d.value === "其他" && !d.else) //可忽略
+            error || !sieve || !data[LABEL[sieve].length - 1].value
+            // data.some((d) => d.value === "其他" && !d.else) //可忽略
           }
           variant="contained"
           onClick={handleSaveClick}
