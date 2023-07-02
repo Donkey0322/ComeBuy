@@ -203,8 +203,11 @@ export default function Add() {
             />
           }
           disabled={
-            error || !sieve || !data[LABEL[sieve].length - 1].value
-            // data.some((d) => d.value === "其他" && !d.else) //可忽略
+            error ||
+            !sieve ||
+            data.every((m) => !m.value) ||
+            // !data[LABEL[sieve].length - 1].value
+            data.some((d) => d.value === "其他" && !d.else) //可忽略
           }
           variant="contained"
           onClick={handleSaveClick}
