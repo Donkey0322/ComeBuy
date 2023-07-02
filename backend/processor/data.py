@@ -19,7 +19,7 @@ async def get_data():
         result['全台'].setdefault(region, {})
         result['全台'][region].setdefault(county, {})
         result['全台'][region][county].setdefault(district, [])
-        result['全台'][region][county][district].append(store)
+        result['全台'][region][county][district].append(store+"店")
     for item in data['drinks']:
         category = item['category']
         drink = item['drink']

@@ -48,8 +48,8 @@ async def get(data: object, case: str, case_table: str, time: str, table_query: 
                     group by s.name, s.id {',d.id' if data.part else ''}
                 ) as st
             join {table_query} a on st.id = a.{case}
-            join sweets s2 on a.sweet = s2.id
-            join ices i on a.ice = i.id
+            left join sweets s2 on a.sweet = s2.id
+            left join ices i on a.ice = i.id
             join drinks d on d.id = a.drink
             where d.name in {drink_str} and a.date between '{str(data.start_date)}' and '{str(data.end_date)}'
                 {'and ({})'.format(q) if q else ''}
