@@ -130,7 +130,7 @@ insert into stores(region, county, district, name, comebuy_id) values (4, 10, 51
 insert into drinks (name, category, status, comebuy_id) values ('鮮萃大麥紅茶', 1, 1, 'AC001');
 insert into drinks (name, category, status, comebuy_id) values ('海神', 1, 1, 'AC002');
 
-insert into toppings(name) values ('珍珠');
+insert into toppings(name) values ('大珍');
 insert into toppings(name) values ('椰果');
 insert into toppings(name) values ('布丁');
 insert into toppings(name) values ('新雙Q');
