@@ -21,6 +21,7 @@ export default function Add() {
   const [data, setData] = useState(Array(4).fill({ value: "", else: "" }));
   const [send, setSend] = useState(false);
   const [error, setError] = useState(false);
+  const [code, setCode] = useState("");
   let { DATA, SETDATA } = useCondition();
 
   const FetchMenu = (index) => {
@@ -63,6 +64,7 @@ export default function Add() {
 
   const handleSieveChange = ({ target: { value } }) => {
     setData(Array(4).fill({ value: "", else: "" }));
+    setCode("");
     setSieve(value);
   };
   const handleDataChange =
@@ -88,13 +90,17 @@ export default function Add() {
       data.reduce((acc, curr, index, array) => {
         if (curr.value)
           acc[KEY_MAP[LABEL[sieve][index]]] = {
-            value: curr[curr.else ? "else" : "value"],
+            value:
+              index !== 0 && index === LABEL[sieve].length - 1
+                ? [curr[curr.else ? "else" : "value"], code]
+                : curr[curr.else ? "else" : "value"],
             new: Boolean(
               curr.else ||
                 array
                   .map((m) => m.else)
                   .slice(0, index)
-                  .some((e) => e)
+                  .some((e) => e) ||
+                index === array.length - 1
             ),
           };
         return acc;
@@ -145,18 +151,45 @@ export default function Add() {
               .slice(0, index)
               ?.map((m) => m.else)
               ?.some((e) => e)
-              ? show && (
-                  <TextField
-                    {...prop}
-                    {...checkValidation(index)}
-                    sx={{ width: 250 }}
-                    InputProps={{
-                      endAdornment: index === 3 && (
-                        <InputAdornment position="end">店</InputAdornment>
-                      ),
-                    }}
-                  />
-                )
+              ? array.length - 1 === index
+                ? show && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        columnGap: 1,
+                      }}
+                    >
+                      <TextField
+                        {...prop}
+                        {...checkValidation(index)}
+                        sx={{ width: 250 }}
+                        InputProps={{
+                          endAdornment: index === 3 && (
+                            <InputAdornment position="end">店</InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        label="代號"
+                        variant="outlined"
+                        value={code}
+                        onChange={({ target: { value } }) => setCode(value)}
+                        sx={{ width: 250 }}
+                      />
+                    </Box>
+                  )
+                : show && (
+                    <TextField
+                      {...prop}
+                      {...checkValidation(index)}
+                      sx={{ width: 250 }}
+                      InputProps={{
+                        endAdornment: index === 3 && (
+                          <InputAdornment position="end">店</InputAdornment>
+                        ),
+                      }}
+                    />
+                  )
               : show && (
                   <Box
                     sx={{
@@ -206,7 +239,8 @@ export default function Add() {
             error ||
             !sieve ||
             data.every((m) => !m.value) ||
-            // !data[LABEL[sieve].length - 1].value
+            (!data[LABEL[sieve].length - 1].value &&
+              data.every((m) => !m.else)) ||
             data.some((d) => d.value === "其他" && !d.else) //可忽略
           }
           variant="contained"

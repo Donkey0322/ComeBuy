@@ -68,7 +68,7 @@ export default function LabTabs() {
           acc[curr] = curr.includes(
             condition.location?.[0].level.substring(0, 5)
           )
-            ? condition.location.map((l) => l.name)
+            ? condition.location.map((l) => l.name.replace(/店$/, ""))
             : [];
           return acc;
         },

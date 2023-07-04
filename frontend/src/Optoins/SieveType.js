@@ -12,8 +12,12 @@ import {
 import React, { useState } from "react";
 import { useCondition } from "../hooks/useCondition";
 import Beverage from "./Beverage";
+import Flavor from "./Flavor";
+import Ice from "./Ice";
 import Location from "./Location";
+import Sweet from "./Sweet";
 import Time from "./Time";
+import Topping from "./Topping";
 
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
@@ -23,13 +27,11 @@ const SieveType = () => {
       child: <Location />,
       image: "location",
     },
-    // 購買方式: { focused: false },
     品項: { focused: false, child: <Beverage />, image: "drink" },
-    // 口味: { focused: false },
-    // 甜度: { focused: false, child: <Sweet />, image: "sweet" },
-    // 冰塊: { focused: false, child: <Ice />, image: "ice" },
-    // 口味: { focused: false, child: <Flavor /> },
-    // 加料: { focused: false, child: <Topping /> },
+    甜度: { focused: false, child: <Sweet />, image: "sweet" },
+    冰塊: { focused: false, child: <Ice />, image: "ice" },
+    口味: { focused: false, child: <Flavor /> },
+    加料: { focused: false, child: <Topping /> },
   });
   const {
     condition: { part, ice, sweet, flavor, topping },
