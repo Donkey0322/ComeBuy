@@ -38,15 +38,9 @@ def query(q, conn):
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print('err', error)
-
-def query2(q, s, conn):
-    try:
-        cursor = conn.cursor()
-        cursor.execute(q,s)
-        cursor.close()
-        conn.commit()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print('err', error)
+        cursor.execute('ROLLBACK')
+        raise
+        
 
 def select(q, conn):
     try:
@@ -58,13 +52,9 @@ def select(q, conn):
         return(r)
     except (Exception, psycopg2.DatabaseError) as error:
         print('err', error)
-
-def split_tolist(target):
-    if target:
-        target = target.split('/')
-        target.sort()
-        return target
-    return target
+        cursor.execute('ROLLBACK')
+        raise
+        
 
 # 此 function 會將塞進來的表格進行統計後分別匯入 8 張 aggregate 的表
 def insert(df):
@@ -80,20 +70,21 @@ def insert(df):
             TWid = (select(sql, conn)[0][0])
             aggregateHourTW = df.groupby(['date', 'time', 'drink', 'ice', 'sweet', 'taste', 'topping'], as_index=False, dropna=False)[['price', 'amount']].sum()
             aggregateDayTW = df.groupby(['date', 'drink', 'ice', 'sweet', 'taste', 'topping'], as_index=False, dropna=False)[['price', 'amount']].sum()
-            aggregateDayTW['topping'] = aggregateDayTW['topping'].apply(lambda x: split_tolist(x) if type(x) == str else None)
-            aggregateDayTW['taste'] = aggregateDayTW['taste'].apply(lambda x: split_tolist(x) if type(x) == str else None)
-            aggregateHourTW['topping'] = aggregateHourTW['topping'].apply(lambda x: split_tolist(x) if type(x) == str else None)
-            aggregateHourTW['taste'] = aggregateHourTW['taste'].apply(lambda x: split_tolist(x) if type(x) == str else None)
+            aggregateDayTW['topping'] = aggregateDayTW['topping'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
+            aggregateDayTW['taste'] = aggregateDayTW['taste'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
+            aggregateHourTW['topping'] = aggregateHourTW['topping'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
+            aggregateHourTW['taste'] = aggregateHourTW['taste'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
             aggregateHourTW.insert(loc=0, column='region', value=[TWid]*len(aggregateHourTW))
             aggregateDayTW.insert(loc=0, column='region', value=[TWid]*len(aggregateDayTW))
             aggregateDayTW = aggregateDayTW.fillna(psycopg2.extensions.AsIs('NULL'))
             aggregateHourTW = aggregateHourTW.fillna(psycopg2.extensions.AsIs('NULL'))
             dataHourTW = aggregateHourTW.values.tolist()
             dataDayTW = aggregateDayTW.values.tolist()
+            
 
+        aggregateDay['topping'] = aggregateDay['topping'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
+        aggregateDay['taste'] = aggregateDay['taste'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
         aggregateDay = aggregateDay.fillna(psycopg2.extensions.AsIs('NULL'))
-        aggregateDay['topping'] = aggregateDay['topping'].apply(lambda x: split_tolist(x) if type(x) == str else None)
-        aggregateDay['taste'] = aggregateDay['taste'].apply(lambda x: split_tolist(x) if type(x) == str else None)
         data = aggregateDay.values.tolist()
         data.extend(dataDayTW)
         args = ','.join(cursor.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s,%s)", i).decode('utf-8')
@@ -104,19 +95,17 @@ def insert(df):
             sql = "INSERT INTO aggregateSalesDay" + i + " (" + i + ", date, drink, ice, sweet, taste, topping, price, amount) VALUES " + (args)
         query(sql, conn)
         
+        aggregateHour['topping'] = aggregateHour['topping'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
+        aggregateHour['taste'] = aggregateHour['taste'].apply(lambda x: x.split("/")).apply(lambda x: sorted([f for f in x if f]))
         aggregateHour = aggregateHour.fillna(psycopg2.extensions.AsIs('NULL'))
-        aggregateHour['topping'] = aggregateHour['topping'].apply(lambda x: split_tolist(x) if type(x) == str else None)
-        aggregateHour['taste'] = aggregateHour['taste'].apply(lambda x: split_tolist(x) if type(x) == str else None)
         data = aggregateHour.values.tolist()
         data.extend(dataHourTW)
         args = ','.join(cursor.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", i).decode('utf-8')
                     for i in data)
-        print(args)
         if i == 'store':
             sql = "INSERT INTO aggregateSalesHour" + " (" + i + " ,date, hour, drink, ice, sweet, taste, topping, price, amount) VALUES " + (args)
         else:
             sql = "INSERT INTO aggregateSalesHour" + i + " (" + i + " ,date, hour, drink, ice, sweet, taste, topping, price, amount) VALUES " + (args)
-        print(sql)
         query(sql, conn)
 
 

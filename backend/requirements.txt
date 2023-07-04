@@ -9,3 +9,4 @@ aiofiles
 asyncpg
 pandas
 psycopg2
+xlrd
