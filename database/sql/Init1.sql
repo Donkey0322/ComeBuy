@@ -76,8 +76,10 @@ CREATE TABLE sales(
     store      INTEGER     NOT NULL     REFERENCES stores(id),          
     time       TIMESTAMP   NOT NULL,                                      -- YYYY/MM/DD HH:MM:SS
     drink      INTEGER     NOT NULL     REFERENCES drinks(id),
-    taste      VARCHAR,                                             
-    topping    VARCHAR,                                     
+    ice        INTEGER     REFERENCES ices(id),
+    sweet      INTEGER     REFERENCES sweets(id),
+    taste      VARCHAR[],                                             
+    topping    VARCHAR[],                                     
     price      INTEGER     NOT NULL,
     amount     INTEGER     NOT NULL
 );
@@ -90,8 +92,8 @@ CREATE TABLE aggregateSalesHour(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,                                               
-    topping    VARCHAR,                                                                                       
+    taste      VARCHAR[],                                               
+    topping    VARCHAR[],                                                                                       
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
@@ -103,8 +105,8 @@ CREATE TABLE aggregateSalesDay(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,                                         
-    topping    VARCHAR,                                                                                        
+    taste      VARCHAR[],                                         
+    topping    VARCHAR[],                                                                                        
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
@@ -117,8 +119,8 @@ CREATE TABLE aggregateSalesHourDistrict(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,                                              
-    topping    VARCHAR,                                                                                        
+    taste      VARCHAR[],                                              
+    topping    VARCHAR[],                                                                                        
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
@@ -130,8 +132,8 @@ CREATE TABLE aggregateSalesDayDistrict(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,                                          
-    topping    VARCHAR,                                                                                   
+    taste      VARCHAR[],                                          
+    topping    VARCHAR[],                                                                                   
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
@@ -157,8 +159,8 @@ CREATE TABLE aggregateSalesDayCounty(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,                                               
-    topping    VARCHAR,                                                                                          
+    taste      VARCHAR[],                                               
+    topping    VARCHAR[],                                                                                          
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
@@ -171,8 +173,8 @@ CREATE TABLE aggregateSalesHourRegion(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,
-    topping    VARCHAR,                                           
+    taste      VARCHAR[],
+    topping    VARCHAR[],                                           
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
@@ -184,8 +186,8 @@ CREATE TABLE aggregateSalesDayRegion(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,                           
-    topping    VARCHAR,                                                                      
+    taste      VARCHAR[],                           
+    topping    VARCHAR[],                                                                      
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );

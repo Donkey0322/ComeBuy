@@ -91,11 +91,15 @@ VALUES ('販賣中'),
 
 INSERT INTO sweets (name)
 VALUES ('正常糖'),
+       ('標準糖'),
        ('少糖'),
        ('半糖'),
+       ('多糖'),
        ('微糖'),
        ('1分'),
        ('無糖'),
+       ('正常蜜'),
+       ('正蜜'),
        ('多蜜'),
        ('少蜜'),
        ('半蜜'),
@@ -103,12 +107,16 @@ VALUES ('正常糖'),
 
 INSERT INTO ices (name)
 VALUES ('正常冰'),
+       ('標準冰'),
+       ('多冰'),
        ('少冰'),
        ('半冰'),
        ('微冰'),
        ('去冰'),
        ('溫品'),
-       ('熱品');
+       ('熱品'),
+       ('溫飲'),
+       ('熱飲');
 
 INSERT INTO categories (name)
 VALUES ('原葉鮮萃茶'),
@@ -124,8 +132,8 @@ VALUES ('原葉鮮萃茶'),
        ('隱藏商品'),
        ('冷泡茶');
 
-insert into stores(region, county, district, name, comebuy_id) values (1, 1, 1, '新店光明店', 'A0001');
-insert into stores(region, county, district, name, comebuy_id) values (4, 10, 51, '花蓮中山店', 'C0001');
+insert into stores(region, county, district, name, comebuy_id) values (1, 1, 1, '新店光明', 'A0001');
+insert into stores(region, county, district, name, comebuy_id) values (4, 10, 51, '花蓮中山', 'C0001');
 
 insert into drinks (name, category, status, comebuy_id) values ('鮮萃大麥紅茶', 1, 1, 'AC001');
 insert into drinks (name, category, status, comebuy_id) values ('海神', 1, 1, 'AC002');
