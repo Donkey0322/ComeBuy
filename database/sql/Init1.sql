@@ -146,8 +146,8 @@ CREATE TABLE aggregateSalesHourCounty(
     drink      INTEGER     NOT NULL    REFERENCES drinks(id),
     ice        INTEGER     REFERENCES ices(id),
     sweet      INTEGER     REFERENCES sweets(id),
-    taste      VARCHAR,
-    topping    VARCHAR,                                                                        
+    taste      VARCHAR[],
+    topping    VARCHAR[],                                                                        
     price      INTEGER     NOT NULL,                                    -- total
     amount     INTEGER     NOT NULL
 );
