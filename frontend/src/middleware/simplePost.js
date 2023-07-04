@@ -3,8 +3,8 @@ const URL = {
   searchItem: "/search_item",
   getLineChart: "/line_item",
   getBarChart: "/bar_item",
-  newItem: "/manipulate/new",
-  updateItem: "/manipulate/update",
+  newItem: "/new",
+  updateItem: "/update",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {
