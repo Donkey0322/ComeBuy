@@ -36,7 +36,7 @@ python createTable.py
 INSERT INTO tempSales(store, time, drink, topping, taste, price, amount) VALUES ('C0001', '2023-01-06 15:10:00', 'AC002', '珍珠', '/去冰/半糖', 200, 4);
 ```
 
-6. 匯入完成後，在此資料夾下執行 aggregate.py
+6. 匯入完成後，在此資料夾下執行 aggregate0704.py
 ```bash
 python aggregate0704.py
 ```
