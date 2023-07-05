@@ -19,10 +19,6 @@ instance.interceptors.response.use(
     return response;
   },
   function (error) {
-    // if (error.response.config.url) {
-    //   console.log("RES", 200, error.response.config.url, { status: "success" });
-    //   return { data: { status: "success" } };
-    // }
     return Promise.reject(error);
   }
 );

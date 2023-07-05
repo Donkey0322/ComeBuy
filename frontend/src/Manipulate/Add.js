@@ -151,7 +151,7 @@ export default function Add() {
               .slice(0, index)
               ?.map((m) => m.else)
               ?.some((e) => e)
-              ? array.length - 1 === index
+              ? array.length - 1 === index && index !== 0
                 ? show && (
                     <Box
                       sx={{
