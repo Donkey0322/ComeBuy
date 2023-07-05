@@ -2,7 +2,7 @@
 
 1. 須先安裝 PostgreSQL 並建立一個 database。
 2. 在 .env 中放入資料庫的連線資料。
-3. 在此資料夾下依序執行 createTable.py 兩個檔案
+3. 在此資料夾下執行 createTable.py 兩個檔案
 ```bash
 /database
 python createTable.py
@@ -38,7 +38,7 @@ INSERT INTO tempSales(store, time, drink, topping, taste, price, amount) VALUES 
 
 6. 匯入完成後，在此資料夾下執行 aggregate.py
 ```bash
-python aggregate0617.py
+python aggregate0704.py
 ```
 7. 後續若每週更新銷售紀錄則反覆步驟 5、6。
 

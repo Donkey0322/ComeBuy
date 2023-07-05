@@ -1,18 +1,7 @@
 import pandas as pd
 import psycopg2
+from config import db_config
 
-
-class color:
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    DARKCYAN = '\033[36m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
     
 def ice(icedict):
     if(icedict["冰塊"]):
@@ -110,11 +99,12 @@ def insert(df):
 
 
 conn = psycopg2.connect(
-    host="localhost",
-    database="comebuy_db",
-    port='5433',
-    user="dev",
-    password="dev")
+    host=db_config.host,
+    port=db_config.port,
+    user=db_config.username,
+    password=db_config.password,
+    database=db_config.db_name,
+)
 cursor = conn.cursor()
 
 
@@ -186,7 +176,7 @@ df = df[["分店代號", "time", "代號", "冰塊", "甜度", "口味", "加料
 
 
 temp_sales_df = df
-# 將 tempSales 中的 store, drink 對應到資料庫中的 id，若無對應的 id 則會跳出錯誤訊息，請先新增 id 或移除該交易再匯入資料
+# 將 tempSales 中的 store, drink, ice, sweet 對應到資料庫中的 id，若無對應的 id 則會跳出錯誤訊息，請先新增 id 或移除該交易再匯入資料
 apply_list = [['sweet', sweets, '甜度'], ['ice', ices, '冰塊'], ['store', stores, '門市'], ['drink', drinks, '飲品']]
 for ll in apply_list:
     try:
