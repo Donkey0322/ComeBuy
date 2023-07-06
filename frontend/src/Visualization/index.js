@@ -6,8 +6,16 @@ import React, { useRef, useState } from "react";
 import { useCondition } from "../hooks/useCondition";
 import { getBarChart, getLineChart, searchItem } from "../middleware";
 import BarChartAnalysis from "./BarChartAnalysis";
+import DailyAggregate from "./DailyAggregate";
 import LineChartAnalysis from "./LineChartAnalysis";
 import StoreBeverage from "./StoreBeverage";
+
+const TABS = [
+  { label: "總表", Component: StoreBeverage },
+  { label: "單日數據統計", Component: DailyAggregate },
+  { label: "過去若干年趨勢", Component: LineChartAnalysis },
+  { label: "過去若干時段趨勢", Component: BarChartAnalysis },
+];
 
 export default function LabTabs() {
   const [value, setValue] = useState("1");
@@ -121,26 +129,30 @@ export default function LabTabs() {
         <div ref={ref}>
           <TabContext value={value}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList
-                onChange={handleChange}
-                aria-label="lab API tabs example"
-              >
-                <Tab label="總表" value="1" />
-                <Tab label="過去若干年趨勢" value="2" />
-                <Tab label="過去若干時段趨勢" value="3" />
+              <TabList onChange={handleChange}>
+                {TABS.map((m, index) => (
+                  <Tab key={index} label={m.label} value={`${index + 1}`} />
+                ))}
               </TabList>
             </Box>
             <TabPanel value="1">
               <StoreBeverage data={result.StoreBeverage} />
             </TabPanel>
             <TabPanel value="2">
+              <DailyAggregate
+                data={result.StoreBeverage}
+                THEME={THEME}
+                setTheme={setTheme}
+              />
+            </TabPanel>
+            <TabPanel value="3">
               <LineChartAnalysis
                 data={result.LineChart}
                 THEME={THEME}
                 setTheme={setTheme}
               />
             </TabPanel>
-            <TabPanel value="3">
+            <TabPanel value="4">
               <BarChartAnalysis
                 data={result.BarChart}
                 THEME={THEME}

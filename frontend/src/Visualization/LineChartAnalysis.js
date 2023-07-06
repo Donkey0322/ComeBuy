@@ -1,32 +1,32 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { HexColorPicker } from "react-colorful";
-import { styled } from "@mui/material/styles";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import {
-  FormControl,
-  OutlinedInput,
-  InputLabel,
   Box,
-  Typography,
-  ToggleButtonGroup,
-  ToggleButton,
+  FormControl,
   IconButton,
+  InputLabel,
   Menu,
   MenuItem,
+  OutlinedInput,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
 } from "@mui/material";
 import MuiTool, { tooltipClasses } from "@mui/material/Tooltip";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useCondition } from "../hooks/useCondition";
+import { styled } from "@mui/material/styles";
 import _ from "lodash";
+import React, { useCallback, useEffect, useState } from "react";
+import { HexColorPicker } from "react-colorful";
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useCondition } from "../hooks/useCondition";
 import { getLineChart } from "../middleware";
 
 const LightTooltip = styled(({ className, ...props }) => (
@@ -125,6 +125,10 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
   }, [data]);
 
   useEffect(() => {
+    console.log(points);
+  }, [points]);
+
+  useEffect(() => {
     if (showType) {
       setPoints(dataFormatProcessing(data, year, showType, constraint));
       setKey((prev) => prev + 1);
@@ -157,7 +161,7 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       {points.point.length > 0 && (
         <>
           <Box
@@ -235,11 +239,7 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography
-                variant="h6"
-                fontWeight={600}
-                // sx={{ ml: 6 }}
-              >
+              <Typography variant="h6" fontWeight={600}>
                 {constraint} {showType}
               </Typography>
               {Boolean(
@@ -325,7 +325,7 @@ const LineChartAnalysis = ({ data, THEME, setTheme }) => {
           </Box>
         </>
       )}
-    </div>
+    </Box>
   );
 };
 

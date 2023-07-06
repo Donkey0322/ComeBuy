@@ -20,6 +20,7 @@
     "dayjs": "^1.11.7",
     "faker": "^6.6.6",
     "moment": "^2.29.4",
+    "moment-range": "^4.0.2",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-colorful": "^5.6.1",
