@@ -1,9 +1,11 @@
+import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
   Button,
   Chip,
   Dialog,
   FormLabel,
+  IconButton,
   Slide,
   Typography,
 } from "@mui/material";
@@ -65,7 +67,7 @@ const Index = () => {
   const handleModalClose = () => {
     setOpen(false);
   };
-  const { condition, deleteLocationCondition } = useCondition();
+  const { condition, deleteLocationCondition, setCondition } = useCondition();
 
   const checkValidCondition = () => {
     const level = condition.location?.[0]?.level;
@@ -95,8 +97,19 @@ const Index = () => {
           flexWrap: "wrap",
           gap: "2vmin",
           p: 1,
+          position: "relative",
         }}
       >
+        {Boolean(
+          condition.location.filter((m) => m.name !== "全台").length
+        ) && (
+          <IconButton
+            sx={{ position: "absolute", right: -20, top: -20 }}
+            onClick={() => setCondition((prev) => ({ ...prev, location: [] }))}
+          >
+            <CancelIcon fontSize="inherit" color="error" />
+          </IconButton>
+        )}
         {condition.location.map((c, index) => (
           <ThemeProvider theme={theme} key={index}>
             <Chip

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { FormControlLabel, Checkbox, Box, FormGroup } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useCondition } from "../hooks/useCondition";
+
+const SORTFUNC = (a, b) => a.length - b.length || a.localeCompare(b);
 
 export default () => {
   const {
@@ -31,20 +33,35 @@ export default () => {
     }
   };
 
+  useEffect(() => {
+    setTopping(
+      DATA.reduce((acc, curr) => {
+        acc[curr] = condition.topping.includes(curr);
+        return acc;
+      }, {})
+    );
+  }, [condition.topping]);
+
   return (
     <Box>
       <FormGroup row>
-        {Object.keys(topping).map((f, index) => (
-          <FormControlLabel
-            value={f}
-            labelPlacement="bottom"
-            control={
-              <Checkbox onClick={handleToppingClick(f)} checked={topping[f]} />
-            }
-            label={f}
-            key={index}
-          />
-        ))}
+        {Object.keys(topping)
+          .sort(SORTFUNC)
+          .map((f, index) => (
+            <FormControlLabel
+              value={f}
+              labelPlacement="bottom"
+              control={
+                <Checkbox
+                  onClick={handleToppingClick(f)}
+                  checked={topping[f]}
+                  color="secondary"
+                />
+              }
+              label={f}
+              key={index}
+            />
+          ))}
       </FormGroup>
     </Box>
   );

@@ -46,7 +46,14 @@ function recursive_set(type, data, ...route) {
   }
 }
 
-function recursive_reduce(DATA, chosen, prevState, limit, indexform = 1) {
+function recursive_reduce(
+  DATA,
+  chosen,
+  prevState,
+  limit,
+  indexform = 1,
+  searchWord = ""
+) {
   if (Array.isArray(DATA)) {
     return DATA.reduce((acc, curr) => {
       if (
@@ -70,13 +77,17 @@ function recursive_reduce(DATA, chosen, prevState, limit, indexform = 1) {
       ) {
         acc[curr] = {
           chosen: chosen.some((e) => e.route.includes(curr) || e.name === curr),
-          collapsed: prevState?.[curr]?.collapsed ?? false,
+          collapsed: Boolean(
+            prevState?.[curr]?.collapsed ||
+              (searchWord && !curr.includes(searchWord))
+          ),
           children: recursive_reduce(
             DATA[curr],
             chosen,
             prevState?.[curr]?.children ?? undefined,
             limit,
-            indexform + 1
+            indexform + 1,
+            searchWord
           ),
         };
       }
@@ -261,9 +272,10 @@ export default function Modal({ handleModalClose }) {
                 (i) => i.name === item.name && i.index === item.index
               ) === index
           );
+        console.log(limit);
         setSearchingLimit(limit);
         setLocation((prev) =>
-          recursive_reduce(DATA, condition.location, prev, limit)
+          recursive_reduce(DATA, condition.location, prev, limit, 1, searchWord)
         );
         setSearchWord("");
       }

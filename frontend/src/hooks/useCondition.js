@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 /*測試用*/
+import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 /****************************/
 
@@ -7,6 +8,7 @@ const ConditionContext = createContext({
   condition: {},
   DATA: {},
   systemState: {},
+  loading: false,
   addLocationCondtion: () => {},
   deleteLocationCondition: () => {},
   addBeverageCondition: () => {},
@@ -16,14 +18,14 @@ const ConditionContext = createContext({
 const ConditionProvider = (props) => {
   const [condition, setCondition] = useState({
     time: {
-      // time: {
-      //   start: dayjs(dayjs().format().slice(0, 11) + "T00:00"),
-      //   end: dayjs(dayjs().format().slice(0, 11) + "T23:59"),
-      // },
-      // date: {
-      //   start: dayjs("2023-01-01"),
-      //   end: dayjs("2023-01-03"),
-      // },
+      time: {
+        start: dayjs(dayjs().format().slice(0, 11) + "T00:00"),
+        end: dayjs(dayjs().format().slice(0, 11) + "T23:59"),
+      },
+      date: {
+        start: dayjs("2023-01-01"),
+        end: dayjs("2023-01-03"),
+      },
     },
     location: [
       // {
@@ -39,8 +41,8 @@ const ConditionProvider = (props) => {
     ],
     method: [],
     beverage: [
-      // { name: "海神", category: "原葉鮮萃茶" },
-      // { name: "鮮萃大麥紅茶", category: "原葉鮮萃茶" },
+      { name: "海神", category: "原葉鮮萃茶" },
+      { name: "鮮萃大麥紅茶", category: "原葉鮮萃茶" },
     ],
     ice: [],
     sweet: [],
@@ -50,6 +52,7 @@ const ConditionProvider = (props) => {
   });
   const [systemState, setSystemState] = useState({});
   const [DATA, SETDATA] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const addLocationCondtion = (name, level, route) => {
     setCondition((prev) => ({
@@ -113,6 +116,8 @@ const ConditionProvider = (props) => {
         setSystemState,
         setCondition,
         SETDATA,
+        loading,
+        setLoading,
         addLocationCondtion,
         deleteLocationCondition,
         addBeverageCondition,

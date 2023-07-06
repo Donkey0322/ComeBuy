@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { FormControlLabel, Checkbox, Box, FormGroup } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useCondition } from "../../hooks/useCondition";
 
 const SORTBY = ["蜜", "糖"];
-const SECONDSORTBY = ["無", "1", "微", "半", "少", "正常", "多"];
+const SECONDSORTBY = ["無", "1", "微", "半", "少", "正", "多"];
 const SORTFUNC = (a, b) =>
   SORTBY.findIndex((e) => a.includes(e)) -
     SORTBY.findIndex((e) => b.includes(e)) ||
   SECONDSORTBY.findIndex((e) => a.includes(e)) -
-    SECONDSORTBY.findIndex((e) => b.includes(e));
+    SECONDSORTBY.findIndex((e) => b.includes(e)) ||
+  a.localeCompare(b);
 
 const SWEETMAP = {
   微蜜: 1,
@@ -52,6 +53,15 @@ export default function Sweet() {
     }
   };
 
+  useEffect(() => {
+    setSweet(
+      DATA.reduce((acc, curr) => {
+        acc[curr] = condition.sweet.includes(curr);
+        return acc;
+      }, {})
+    );
+  }, [condition.sweet]);
+
   return (
     <Box>
       <FormGroup row>
@@ -67,24 +77,25 @@ export default function Sweet() {
                   onClick={handleSweetClick(
                     s.includes("分糖") ? s.replace("分糖", "分") : s
                   )}
-                  checkedIcon={
-                    <img
-                      src={require(`./asset/${
-                        s.includes("蜜") ? "honey3_checked" : "sugar 4"
-                      }.png`)}
-                      width="35px"
-                    />
-                  }
-                  icon={
-                    <img
-                      src={require(`./asset/${
-                        s.includes("蜜")
-                          ? "honey3_nochecked"
-                          : "sugar 4 nocheck"
-                      }.png`)}
-                      width="35px"
-                    />
-                  }
+                  color="warning"
+                  // checkedIcon={
+                  //   <img
+                  //     src={require(`./asset/${
+                  //       s.includes("蜜") ? "honey3_checked" : "sugar 4"
+                  //     }.png`)}
+                  //     width="35px"
+                  //   />
+                  // }
+                  // icon={
+                  //   <img
+                  //     src={require(`./asset/${
+                  //       s.includes("蜜")
+                  //         ? "honey3_nochecked"
+                  //         : "sugar 4 nocheck"
+                  //     }.png`)}
+                  //     width="35px"
+                  //   />
+                  // }
                   checked={
                     sweet[s.includes("分糖") ? s.replace("分糖", "分") : s]
                   }

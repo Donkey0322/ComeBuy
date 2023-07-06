@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { FormControlLabel, Checkbox, Box, FormGroup } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useCondition } from "../hooks/useCondition";
+
+const SORTFUNC = (a, b) => a.length - b.length || a.localeCompare(b);
 
 export default () => {
   const {
@@ -31,20 +33,35 @@ export default () => {
     }
   };
 
+  useEffect(() => {
+    setFlavor(
+      DATA.reduce((acc, curr) => {
+        acc[curr] = condition.flavor.includes(curr);
+        return acc;
+      }, {})
+    );
+  }, [condition.flavor]);
+
   return (
     <Box>
       <FormGroup row>
-        {Object.keys(flavor).map((f, index) => (
-          <FormControlLabel
-            value={f}
-            labelPlacement="bottom"
-            control={
-              <Checkbox onClick={handleFlavorClick(f)} checked={flavor[f]} />
-            }
-            label={f}
-            key={index}
-          />
-        ))}
+        {Object.keys(flavor)
+          .sort(SORTFUNC)
+          .map((f, index) => (
+            <FormControlLabel
+              value={f}
+              labelPlacement="bottom"
+              control={
+                <Checkbox
+                  color="success"
+                  onClick={handleFlavorClick(f)}
+                  checked={flavor[f]}
+                />
+              }
+              label={f}
+              key={index}
+            />
+          ))}
       </FormGroup>
     </Box>
   );

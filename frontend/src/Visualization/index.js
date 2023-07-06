@@ -11,7 +11,7 @@ import StoreBeverage from "./StoreBeverage";
 
 export default function LabTabs() {
   const [value, setValue] = useState("1");
-  const { condition, setSystemState } = useCondition();
+  const { condition, setSystemState, setLoading } = useCondition();
   const [result, setResult] = useState({});
   const [THEME, setTheme] = useState([]);
   const ref = useRef();
@@ -34,6 +34,7 @@ export default function LabTabs() {
 
   const handleSearchClick = async () => {
     try {
+      setLoading(true);
       if (
         Object.keys(condition.time).length === 0 ||
         condition.location.length === 0 ||
@@ -92,9 +93,14 @@ export default function LabTabs() {
       setResult((prev) => ({ ...prev, LineChart: line }));
       const bar = await getBarChart({ period: 3 });
       setResult((prev) => ({ ...prev, BarChart: bar }));
-      ref.current.scrollIntoView({
+      // ref.current.scrollIntoView({
+      //   behavior: "smooth",
+      //   block: "end",
+      // });
+      setLoading(false);
+      window.scrollTo({
+        top: document.body.scrollHeight,
         behavior: "smooth",
-        block: "end",
       });
     } catch (error) {
       throw error;

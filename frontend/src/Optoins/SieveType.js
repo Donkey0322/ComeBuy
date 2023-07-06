@@ -1,4 +1,6 @@
 import {
+  Box,
+  Button,
   Collapse,
   FormControlLabel,
   List,
@@ -19,6 +21,13 @@ import Sweet from "./Sweet";
 import Time from "./Time";
 import Topping from "./Topping";
 
+const KEYMAP = {
+  甜度: "sweet",
+  冰塊: "ice",
+  口味: "flavor",
+  加料: "topping",
+};
+
 const SieveType = () => {
   const [sieveType, setSieveType] = useState({
     時間: { focused: false, child: <Time />, image: "time" },
@@ -28,14 +37,25 @@ const SieveType = () => {
       image: "location",
     },
     品項: { focused: false, child: <Beverage />, image: "drink" },
-    甜度: { focused: false, child: <Sweet />, image: "sweet" },
-    冰塊: { focused: false, child: <Ice />, image: "ice" },
-    口味: { focused: false, child: <Flavor /> },
-    加料: { focused: false, child: <Topping /> },
+    甜度: { focused: false, child: <Sweet />, image: "sweet", shortcut: false },
+    冰塊: { focused: false, child: <Ice />, image: "ice", shortcut: false },
+    口味: {
+      focused: false,
+      child: <Flavor />,
+      image: "flavor",
+      shortcut: false,
+    },
+    加料: {
+      focused: false,
+      child: <Topping />,
+      image: "topping",
+      shortcut: false,
+    },
   });
   const {
     condition: { part, ice, sweet, flavor, topping },
     setCondition,
+    DATA,
   } = useCondition();
 
   const handleSieveClick = (name) => () => {
@@ -50,7 +70,7 @@ const SieveType = () => {
       sx={{
         ml: 1,
         mt: 1,
-        width: "90%",
+        width: "98%",
         // maxWidth: 360,
         bgcolor: "background.paper",
       }}
@@ -61,40 +81,62 @@ const SieveType = () => {
         </ListSubheader>
       }
     >
-      {Object.keys(sieveType).map((s, index) => (
-        <div key={index}>
-          <ListItemButton
-            key={index}
-            onClick={handleSieveClick(s)}
-            sx={{ display: "flex", alignItems: "center" }}
-          >
-            {sieveType[s].image && (
-              <img
-                src={require(`./assets/${sieveType[s].image}.${
-                  sieveType[s].focused ? "gif" : "png"
-                }`)}
-                alt=""
-                width={sieveType[s].focused ? 32 : 28}
-              />
-            )}
-            <ListItemText
-              sx={{ ml: 1 }}
-              primaryTypographyProps={{ fontWeight: 600 }}
+      {Object.keys(sieveType).map((s, index) => {
+        const { image, focused, shortcut, child } = sieveType[s];
+        return (
+          <Box key={index}>
+            <ListItemButton
+              key={index}
+              onClick={handleSieveClick(s)}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
             >
-              {s}
-            </ListItemText>
-          </ListItemButton>
-          <Collapse
-            in={Boolean(sieveType[s].focused && sieveType[s].child)}
-            unmountOnExit
-            sx={{ width: "100%" }}
-          >
-            <List component="div" disablePadding>
-              <ListItem>{sieveType[s].child}</ListItem>
-            </List>
-          </Collapse>
-        </div>
-      ))}
+              {image && (
+                <img
+                  src={require(`./assets/${image}.${focused ? "gif" : "png"}`)}
+                  alt=""
+                  width={focused ? 28 : 26}
+                />
+              )}
+              <ListItemText
+                sx={{ ml: 1 }}
+                primaryTypographyProps={{ fontWeight: 600 }}
+              >
+                {s}
+              </ListItemText>
+              {focused && shortcut !== undefined && (
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCondition((prev) => ({
+                      ...prev,
+                      [KEYMAP[s]]: shortcut ? [] : DATA[s],
+                    }));
+                    setSieveType((prev) => ({
+                      ...prev,
+                      [s]: { ...prev[s], shortcut: !prev[s].shortcut },
+                    }));
+                  }}
+                  variant={shortcut ? "outlined" : "contained"}
+                >
+                  {shortcut ? "一鍵取消" : "一鍵全選"}
+                </Button>
+              )}
+            </ListItemButton>
+            <Collapse
+              in={Boolean(focused && child)}
+              unmountOnExit
+              sx={{ width: "100%" }}
+            >
+              <List component="div" disablePadding>
+                <ListItem>{child}</ListItem>
+              </List>
+            </Collapse>
+          </Box>
+        );
+      })}
       <ListItem
         style={{
           display:
