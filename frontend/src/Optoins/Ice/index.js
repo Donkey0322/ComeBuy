@@ -1,15 +1,15 @@
 import { Box, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
-import React, { useState } from "react";
-// import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import React, { useEffect, useState } from "react";
 import { useCondition } from "../../hooks/useCondition";
 
 const SORTBY = ["冰", "溫", "熱"];
-const SECONDSORTBY = ["去", "微", "半", "少", "正常"];
+const SECONDSORTBY = ["正常", "少", "半", "微", "去"];
 const SORTFUNC = (a, b) =>
   SORTBY.findIndex((e) => a.includes(e)) -
     SORTBY.findIndex((e) => b.includes(e)) ||
   SECONDSORTBY.findIndex((e) => a.includes(e)) -
-    SECONDSORTBY.findIndex((e) => b.includes(e));
+    SECONDSORTBY.findIndex((e) => b.includes(e)) ||
+  a.localeCompare(b);
 
 const iceMap = {
   去冰: { value: 0 },
@@ -50,6 +50,15 @@ export default function Ice() {
     }
   };
 
+  useEffect(() => {
+    setIce(
+      DATA.reduce((acc, curr) => {
+        acc[curr] = condition.ice.includes(curr);
+        return acc;
+      }, {})
+    );
+  }, [condition.ice]);
+
   return (
     <Box>
       <FormGroup row>
@@ -62,49 +71,49 @@ export default function Ice() {
               control={
                 <Checkbox
                   onClick={handleIceClick(i)}
-                  checkedIcon={
-                    iceMap[i] && (
-                      <svg height="30" width="26">
-                        <polygon
-                          points="2,2 24,2 18,28 8,28"
-                          style={{
-                            fill: "none",
-                            stroke: "black",
-                            strokeWidth: 2,
-                          }}
-                        />
-                        <polygon
-                          points={`${
-                            (75 + Math.sqrt(178)) / 13 -
-                            iceMap[i].value * (72 / 52) +
-                            2
-                          },${27 - iceMap[i].value * 6} ${
-                            (211 - Math.sqrt(178)) / 13 +
-                            iceMap[i].value * (72 / 52) +
-                            2
-                          },${27 - iceMap[i].value * 6} ${
-                            (211 - Math.sqrt(178)) / 13 + 2
-                          },27 ${(75 + Math.sqrt(178)) / 13 + 2},27`}
-                          style={{
-                            fill: iceMap[i]?.color ?? "#03a9f4",
-                            stroke: "none",
-                          }}
-                        />
-                      </svg>
-                    )
-                  }
-                  icon={
-                    <svg height="30" width="26">
-                      <polygon
-                        points="2,2 24,2 18,28 8,28"
-                        style={{
-                          fill: "black",
-                          stroke: "black",
-                          strokeWidth: 2,
-                        }}
-                      />
-                    </svg>
-                  }
+                  // checkedIcon={
+                  //   iceMap[i] && (
+                  //     <svg height="30" width="26">
+                  //       <polygon
+                  //         points="2,2 24,2 18,28 8,28"
+                  //         style={{
+                  //           fill: "none",
+                  //           stroke: "black",
+                  //           strokeWidth: 2,
+                  //         }}
+                  //       />
+                  //       <polygon
+                  //         points={`${
+                  //           (75 + Math.sqrt(178)) / 13 -
+                  //           iceMap[i].value * (72 / 52) +
+                  //           2
+                  //         },${27 - iceMap[i].value * 6} ${
+                  //           (211 - Math.sqrt(178)) / 13 +
+                  //           iceMap[i].value * (72 / 52) +
+                  //           2
+                  //         },${27 - iceMap[i].value * 6} ${
+                  //           (211 - Math.sqrt(178)) / 13 + 2
+                  //         },27 ${(75 + Math.sqrt(178)) / 13 + 2},27`}
+                  //         style={{
+                  //           fill: iceMap[i]?.color ?? "#03a9f4",
+                  //           stroke: "none",
+                  //         }}
+                  //       />
+                  //     </svg>
+                  //   )
+                  // }
+                  // icon={
+                  //   <svg height="30" width="26">
+                  //     <polygon
+                  //       points="2,2 24,2 18,28 8,28"
+                  //       style={{
+                  //         fill: "black",
+                  //         stroke: "black",
+                  //         strokeWidth: 2,
+                  //       }}
+                  //     />
+                  //   </svg>
+                  // }
                   checked={ice[i]}
                 />
               }

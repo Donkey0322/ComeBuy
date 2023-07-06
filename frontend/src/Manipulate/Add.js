@@ -72,10 +72,14 @@ export default function Add() {
     ({ target: { value } }) => {
       setData((prev) => [
         ...prev
-          .with(index, {
-            ...prev[index],
-            [target]: value,
-          })
+          .map((m, i) =>
+            i === index
+              ? {
+                  ...prev[index],
+                  [target]: value,
+                }
+              : m
+          )
           .slice(0, index + 1),
         ...Array(3 - index).fill({ value: "", else: "" }),
       ]);

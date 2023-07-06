@@ -1,7 +1,9 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
+  Backdrop,
   Box,
+  CircularProgress,
   Divider,
   IconButton,
   List,
@@ -15,6 +17,7 @@ import {
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import SideBarItems from "./SideBarItems";
+import { useCondition } from "./hooks/useCondition";
 
 const drawerWidth = 240;
 
@@ -69,6 +72,7 @@ function AppFrame() {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const { loading, setLoading } = useCondition();
 
   return (
     <div className="flex">
@@ -128,14 +132,13 @@ function AppFrame() {
               : theme.palette.grey[900],
           flexGrow: 1,
           minHeight: "100vh",
-          // overflow: "auto",
         }}
       >
         <Toolbar />
         <Paper
           maxwidth="lg"
           sx={{
-            mt: 4,
+            my: 4,
             ml: 4,
             // pt: 2,
             // pl: 2,
@@ -150,6 +153,13 @@ function AppFrame() {
           <Outlet />
         </Paper>
       </Box>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+        onClick={() => setLoading(false)}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 }
