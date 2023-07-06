@@ -24,7 +24,7 @@ const ConditionProvider = (props) => {
       },
       date: {
         start: dayjs("2023-01-01"),
-        end: dayjs("2023-01-03"),
+        end: dayjs("2023-01-07"),
       },
     },
     location: [
