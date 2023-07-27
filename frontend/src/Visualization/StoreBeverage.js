@@ -1,15 +1,9 @@
 import { Box, Chip } from "@mui/material";
-import {
-  DataGrid,
-  GridToolbarColumnsButton,
-  GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
-} from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import moment from "moment";
 import React from "react";
 import styled from "styled-components";
+import GridToolBar from "../components/GridToolBar";
 import { useCondition } from "../hooks/useCondition";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -22,22 +16,6 @@ const theme = createTheme({
     },
   },
 });
-
-const CustomToolBar = () => {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-      <GridToolbarDensitySelector />
-      <GridToolbarExport
-        csvOptions={{
-          fileName: "各門市杯數及佔比",
-          utf8WithBom: true,
-        }}
-      />
-    </GridToolbarContainer>
-  );
-};
 
 const ConstraintsContainer = styled.div`
   display: flex;
@@ -158,7 +136,9 @@ const StoreBeverage = ({ data }) => {
               },
             },
           }}
-          slots={{ toolbar: CustomToolBar }}
+          slots={{
+            toolbar: () => <GridToolBar fileName="各門市杯數及佔比" />,
+          }}
           getRowId={(row) => row.序號}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
