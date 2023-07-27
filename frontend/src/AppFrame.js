@@ -101,7 +101,7 @@ function AppFrame() {
             to="/"
             className="flex-1"
           >
-            Comebuy
+            COMEBUY
           </Typography>
         </Toolbar>
       </AppBar>

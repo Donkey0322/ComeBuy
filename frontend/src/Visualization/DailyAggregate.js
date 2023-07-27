@@ -1,14 +1,7 @@
 import { Box } from "@mui/material";
 import MuiTool, { tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import {
-  DataGrid,
-  GridToolbarColumnsButton,
-  GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
-} from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import { useState } from "react";
@@ -23,24 +16,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import GridToolBar from "../components/GridToolBar";
 import { useCondition } from "../hooks/useCondition";
 const moment = extendMoment(Moment);
-
-const CustomToolBar = () => {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-      <GridToolbarDensitySelector />
-      <GridToolbarExport
-        csvOptions={{
-          fileName: "各門市杯數及佔比",
-          utf8WithBom: true,
-        }}
-      />
-    </GridToolbarContainer>
-  );
-};
 
 const LightTooltip = styled(({ className, ...props }) => (
   <MuiTool {...props} classes={{ popper: className }} />
@@ -215,13 +193,13 @@ const DailyAggregate = ({ data, THEME, setTheme }) => {
               },
             },
           }}
-          slots={{ toolbar: CustomToolBar }}
+          slots={{ toolbar: () => <GridToolBar fileName="單日銷貨數據" /> }}
           getRowId={(row) => row.序號}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
         />
       )}
-      <Box sx={{ width: "100%" }}>
+      <Box sx={{ width: "100%", mt: 3 }}>
         {points?.point?.length > 0 && (
           <>
             <Box
