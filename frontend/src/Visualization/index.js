@@ -2,20 +2,13 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Box, Button, Tab } from "@mui/material";
 import _ from "lodash";
 import moment from "moment";
-import React, { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCondition } from "../hooks/useCondition";
 import { getBarChart, getLineChart, searchItem } from "../middleware";
-import BarChartAnalysis from "./BarChartAnalysis";
-import DailyAggregate from "./DailyAggregate";
-import LineChartAnalysis from "./LineChartAnalysis";
+import Aggregate from "./Aggregate";
+import PeriodAnalysis from "./PeriodAnalysis";
 import StoreBeverage from "./StoreBeverage";
-
-const TABS = [
-  { label: "總表", Component: StoreBeverage },
-  { label: "單日數據統計", Component: DailyAggregate },
-  { label: "過去若干年趨勢", Component: LineChartAnalysis },
-  { label: "過去若干時段趨勢", Component: BarChartAnalysis },
-];
+import YearAnalysis from "./YearAnalysis";
 
 export default function LabTabs() {
   const [value, setValue] = useState("1");
@@ -24,6 +17,10 @@ export default function LabTabs() {
   const [THEME, setTheme] = useState([]);
   const ref = useRef();
 
+  useEffect(() => {
+    setResult({});
+  }, [condition]);
+
   const checkValidCondition = () => {
     if (
       Object.keys(condition.time).length === 0 ||
@@ -31,7 +28,6 @@ export default function LabTabs() {
       condition.beverage.length === 0
     )
       return false;
-
     const level = condition.location?.[0]?.level;
     return level ? condition.location.every((e) => e.level === level) : true;
   };
@@ -97,6 +93,8 @@ export default function LabTabs() {
       setValue("1");
       const data = await searchItem(temp);
       setResult((prev) => ({ ...prev, StoreBeverage: data }));
+      const aggregateData = await getBarChart({ period: 1 });
+      setResult((prev) => ({ ...prev, aggregateData }));
       const line = await getLineChart({ year: 3 });
       setResult((prev) => ({ ...prev, LineChart: line }));
       const bar = await getBarChart({ period: 3 });
@@ -114,6 +112,34 @@ export default function LabTabs() {
       throw error;
     }
   };
+
+  const TABS = [
+    { label: "總表", Component: <StoreBeverage data={result.StoreBeverage} /> },
+    {
+      label: "單日數據統計",
+      Component: <Aggregate data={result.aggregateData} />,
+    },
+    {
+      label: "過去若干年趨勢",
+      Component: (
+        <YearAnalysis
+          data={result.LineChart}
+          THEME={THEME}
+          setTheme={setTheme}
+        />
+      ),
+    },
+    {
+      label: "過去若干時段趨勢",
+      Component: (
+        <PeriodAnalysis
+          data={result.BarChart}
+          THEME={THEME}
+          setTheme={setTheme}
+        />
+      ),
+    },
+  ];
 
   return (
     <Box sx={{ ml: 3, width: "90%", typography: "body1" }}>
@@ -135,30 +161,15 @@ export default function LabTabs() {
                 ))}
               </TabList>
             </Box>
-            <TabPanel value="1">
-              <StoreBeverage data={result.StoreBeverage} />
-            </TabPanel>
-            <TabPanel value="2">
-              <DailyAggregate
-                data={result.StoreBeverage}
-                THEME={THEME}
-                setTheme={setTheme}
-              />
-            </TabPanel>
-            <TabPanel value="3">
-              <LineChartAnalysis
-                data={result.LineChart}
-                THEME={THEME}
-                setTheme={setTheme}
-              />
-            </TabPanel>
-            <TabPanel value="4">
-              <BarChartAnalysis
-                data={result.BarChart}
-                THEME={THEME}
-                setTheme={setTheme}
-              />
-            </TabPanel>
+            {TABS.map((m, index) => (
+              <TabPanel
+                value={String(index + 1)}
+                key={index}
+                sx={{ position: "relative" }}
+              >
+                {m.Component}
+              </TabPanel>
+            ))}
           </TabContext>
         </div>
       )}
