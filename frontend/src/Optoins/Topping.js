@@ -4,7 +4,7 @@ import { useCondition } from "../hooks/useCondition";
 
 const SORTFUNC = (a, b) => a.length - b.length || a.localeCompare(b);
 
-export default () => {
+const Topping = () => {
   const {
     DATA: { 加料: DATA },
     condition,
@@ -66,3 +66,5 @@ export default () => {
     </Box>
   );
 };
+
+export default Topping;
