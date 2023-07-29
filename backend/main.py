@@ -1,7 +1,8 @@
+import processor.route
+from config import app_config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from config import app_config
 
 app = FastAPI(
     title=app_config.title,
@@ -28,19 +29,27 @@ app.add_middleware(
 @app.on_event('startup')
 async def app_startup():
     from config import db_config
+
     from database import pool_handler
     await pool_handler.initialize(db_config=db_config)
-    
+
 
 @app.on_event('shutdown')
 async def app_shutdown():
     from database import pool_handler
     await pool_handler.close()
-    
-import processor.route
+
+
 processor.route.register_routers(app)
 
-app.mount("/", StaticFiles(directory='../frontend/build', html=True), name='build')
+
+class SPAStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 404:
+            response = await super().get_response('.', scope)
+        return response
 
 
-
+app.mount('/', SPAStaticFiles(directory='../frontend/build',
+          html=True), name='build')
