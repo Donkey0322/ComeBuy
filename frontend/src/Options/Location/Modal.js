@@ -195,7 +195,7 @@ export default function Modal({ handleModalClose }) {
     setLocation((prev) =>
       recursive_reduce(DATA, condition.location, prev, searchingLimit)
     );
-  }, [condition.location]); //已選擇改變時，會藉機改變所有列的狀態
+  }, [condition.location, DATA, searchingLimit]); //已選擇改變時，會藉機改變所有列的狀態
 
   const handle =
     (shortcut = false) =>
@@ -324,6 +324,7 @@ export default function Modal({ handleModalClose }) {
           <Box sx={{ flexGrow: 1 }} />
         </Toolbar>
       </AppBar>
+      {/* eslint-disable-next-line react/jsx-pascal-case */}
       <Recursive_Component
         data={location}
         DATA_INDEX={[]}
