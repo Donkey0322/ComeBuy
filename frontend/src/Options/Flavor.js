@@ -4,7 +4,7 @@ import { useCondition } from "../hooks/useCondition";
 
 const SORTFUNC = (a, b) => a.length - b.length || a.localeCompare(b);
 
-export default () => {
+export default function Flavor() {
   const {
     DATA: { 口味: DATA },
     condition,
@@ -40,7 +40,7 @@ export default () => {
         return acc;
       }, {})
     );
-  }, [condition.flavor]);
+  }, [condition.flavor, DATA]);
 
   return (
     <Box>
@@ -65,4 +65,4 @@ export default () => {
       </FormGroup>
     </Box>
   );
-};
+}
