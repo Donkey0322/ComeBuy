@@ -11,15 +11,15 @@ const SORTFUNC = (a, b) =>
     SECONDSORTBY.findIndex((e) => b.includes(e)) ||
   a.localeCompare(b);
 
-const iceMap = {
-  去冰: { value: 0 },
-  微冰: { value: 1 },
-  半冰: { value: 2 },
-  少冰: { value: 3 },
-  正常冰: { value: 4 },
-  熱品: { value: 4, color: "#d32f2f" },
-  溫品: { value: 4, color: "#ff9800" },
-};
+// const iceMap = {
+//   去冰: { value: 0 },
+//   微冰: { value: 1 },
+//   半冰: { value: 2 },
+//   少冰: { value: 3 },
+//   正常冰: { value: 4 },
+//   熱品: { value: 4, color: "#d32f2f" },
+//   溫品: { value: 4, color: "#ff9800" },
+// };
 
 export default function Ice() {
   const {
@@ -57,7 +57,7 @@ export default function Ice() {
         return acc;
       }, {})
     );
-  }, [condition.ice]);
+  }, [condition.ice, DATA]);
 
   return (
     <Box>

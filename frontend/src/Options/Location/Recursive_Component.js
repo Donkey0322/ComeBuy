@@ -1,17 +1,17 @@
-import React from "react";
-import {
-  Box,
-  Chip,
-  Button,
-  ListItem,
-  List,
-  Divider,
-  IconButton,
-  Collapse,
-} from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StoreIcon from "@mui/icons-material/Store";
+import {
+  Box,
+  Button,
+  Chip,
+  Collapse,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+} from "@mui/material";
+import React from "react";
 
 const Recusive_Component = ({ DATA_INDEX, data, handle, AllClick }) => {
   if (data[Object.keys(data)[0]].chosen === undefined) {
@@ -75,6 +75,7 @@ const Recusive_Component = ({ DATA_INDEX, data, handle, AllClick }) => {
               )}
             </ListItem>
             <Collapse in={data[d].collapsed} unmountOnExit sx={{ ml: 1 }}>
+              {/* eslint-disable-next-line react/jsx-pascal-case */}
               <Recusive_Component
                 DATA_INDEX={[...DATA_INDEX, d]}
                 data={data[d].children}

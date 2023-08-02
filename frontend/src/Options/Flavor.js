@@ -4,48 +4,48 @@ import { useCondition } from "../hooks/useCondition";
 
 const SORTFUNC = (a, b) => a.length - b.length || a.localeCompare(b);
 
-const Topping = () => {
+export default function Flavor() {
   const {
-    DATA: { 加料: DATA },
+    DATA: { 口味: DATA },
     condition,
     setCondition,
   } = useCondition();
-  const [topping, setTopping] = useState(
+  const [flavor, setFlavor] = useState(
     DATA.reduce((acc, curr) => {
-      acc[curr] = condition.topping.includes(curr);
+      acc[curr] = condition.flavor.includes(curr);
       return acc;
     }, {})
   );
 
-  const handleToppingClick = (name) => (e) => {
+  const handleFlavorClick = (name) => (e) => {
     const { checked } = e.target;
-    setTopping((prev) => ({
+    setFlavor((prev) => ({
       ...prev,
       [name]: checked,
     }));
     if (checked) {
-      setCondition((prev) => ({ ...prev, topping: [...prev.topping, name] }));
+      setCondition((prev) => ({ ...prev, flavor: [...prev.flavor, name] }));
     } else {
       setCondition((prev) => ({
         ...prev,
-        topping: prev.topping.filter((f) => f !== name),
+        flavor: prev.flavor.filter((f) => f !== name),
       }));
     }
   };
 
   useEffect(() => {
-    setTopping(
+    setFlavor(
       DATA.reduce((acc, curr) => {
-        acc[curr] = condition.topping.includes(curr);
+        acc[curr] = condition.flavor.includes(curr);
         return acc;
       }, {})
     );
-  }, [condition.topping]);
+  }, [condition.flavor, DATA]);
 
   return (
     <Box>
       <FormGroup row>
-        {Object.keys(topping)
+        {Object.keys(flavor)
           .sort(SORTFUNC)
           .map((f, index) => (
             <FormControlLabel
@@ -53,9 +53,9 @@ const Topping = () => {
               labelPlacement="bottom"
               control={
                 <Checkbox
-                  onClick={handleToppingClick(f)}
-                  checked={topping[f]}
-                  color="secondary"
+                  color="success"
+                  onClick={handleFlavorClick(f)}
+                  checked={flavor[f]}
                 />
               }
               label={f}
@@ -65,6 +65,4 @@ const Topping = () => {
       </FormGroup>
     </Box>
   );
-};
-
-export default Topping;
+}

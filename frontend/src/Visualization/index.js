@@ -116,7 +116,7 @@ export default function LabTabs() {
   const TABS = [
     { label: "總表", Component: <StoreBeverage data={result.StoreBeverage} /> },
     {
-      label: "單日數據統計",
+      label: "數據統計",
       Component: <Aggregate data={result.aggregateData} />,
     },
     {

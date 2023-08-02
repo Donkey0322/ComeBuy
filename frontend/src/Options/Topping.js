@@ -4,48 +4,48 @@ import { useCondition } from "../hooks/useCondition";
 
 const SORTFUNC = (a, b) => a.length - b.length || a.localeCompare(b);
 
-export default () => {
+const Topping = () => {
   const {
-    DATA: { 口味: DATA },
+    DATA: { 加料: DATA },
     condition,
     setCondition,
   } = useCondition();
-  const [flavor, setFlavor] = useState(
+  const [topping, setTopping] = useState(
     DATA.reduce((acc, curr) => {
-      acc[curr] = condition.flavor.includes(curr);
+      acc[curr] = condition.topping.includes(curr);
       return acc;
     }, {})
   );
 
-  const handleFlavorClick = (name) => (e) => {
+  const handleToppingClick = (name) => (e) => {
     const { checked } = e.target;
-    setFlavor((prev) => ({
+    setTopping((prev) => ({
       ...prev,
       [name]: checked,
     }));
     if (checked) {
-      setCondition((prev) => ({ ...prev, flavor: [...prev.flavor, name] }));
+      setCondition((prev) => ({ ...prev, topping: [...prev.topping, name] }));
     } else {
       setCondition((prev) => ({
         ...prev,
-        flavor: prev.flavor.filter((f) => f !== name),
+        topping: prev.topping.filter((f) => f !== name),
       }));
     }
   };
 
   useEffect(() => {
-    setFlavor(
+    setTopping(
       DATA.reduce((acc, curr) => {
-        acc[curr] = condition.flavor.includes(curr);
+        acc[curr] = condition.topping.includes(curr);
         return acc;
       }, {})
     );
-  }, [condition.flavor]);
+  }, [condition.topping, DATA]);
 
   return (
     <Box>
       <FormGroup row>
-        {Object.keys(flavor)
+        {Object.keys(topping)
           .sort(SORTFUNC)
           .map((f, index) => (
             <FormControlLabel
@@ -53,9 +53,9 @@ export default () => {
               labelPlacement="bottom"
               control={
                 <Checkbox
-                  color="success"
-                  onClick={handleFlavorClick(f)}
-                  checked={flavor[f]}
+                  onClick={handleToppingClick(f)}
+                  checked={topping[f]}
+                  color="secondary"
                 />
               }
               label={f}
@@ -66,3 +66,5 @@ export default () => {
     </Box>
   );
 };
+
+export default Topping;

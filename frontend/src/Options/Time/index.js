@@ -1,4 +1,4 @@
-import { TextField, Zoom, Stack, Button } from "@mui/material";
+import { Button, Stack, TextField, Zoom } from "@mui/material";
 import {
   DatePicker,
   LocalizationProvider,
@@ -9,7 +9,6 @@ import dayjs from "dayjs";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useCondition } from "../../hooks/useCondition";
-// import "dayjs/locale/zh-cn";
 
 export default function ResponsiveDateRangePickers() {
   const { condition, setCondition } = useCondition();
@@ -67,7 +66,7 @@ export default function ResponsiveDateRangePickers() {
       }));
       setInitialTime(true);
     }
-  }, [condition, initialTime]);
+  }, [condition, initialTime, setCondition]);
 
   return (
     <Stack

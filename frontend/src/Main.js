@@ -1,5 +1,5 @@
 import React from "react";
-import SieveType from "./Optoins/SieveType";
+import SieveType from "./Options/SieveType";
 import Visualization from "./Visualization";
 import { useCondition } from "./hooks/useCondition";
 
