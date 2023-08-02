@@ -40,7 +40,7 @@ const Topping = () => {
         return acc;
       }, {})
     );
-  }, [condition.topping]);
+  }, [condition.topping, DATA]);
 
   return (
     <Box>

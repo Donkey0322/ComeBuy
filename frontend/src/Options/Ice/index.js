@@ -57,7 +57,7 @@ export default function Ice() {
         return acc;
       }, {})
     );
-  }, [condition.ice]);
+  }, [condition.ice, DATA]);
 
   return (
     <Box>

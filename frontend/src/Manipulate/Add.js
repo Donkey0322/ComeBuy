@@ -46,6 +46,7 @@ export default function Add() {
           error = true;
           helperText = "結尾請不要輸入'店'";
         }
+      // eslint-disable-next-line no-fallthrough
       case "drink":
         if (
           data
@@ -57,6 +58,8 @@ export default function Add() {
           error = true;
           helperText = "你輸入了選單內的選項。";
         }
+        break;
+      default:
         break;
     }
     return { error, helperText };

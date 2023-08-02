@@ -1,24 +1,23 @@
-import React, { useEffect, useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import {
-  Button,
-  ListItem,
-  List,
   AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
   Box,
-  ListItemText,
-  Divider,
+  Button,
   Checkbox,
   DialogContent,
+  Divider,
+  IconButton,
   InputBase,
+  List,
+  ListItem,
+  ListItemText,
+  Toolbar,
+  Typography,
 } from "@mui/material";
 import { styled as MuiStyled, alpha } from "@mui/material/styles";
-import { useCondition } from "../../hooks/useCondition";
-import CloseIcon from "@mui/icons-material/Close";
-import SearchIcon from "@mui/icons-material/Search";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useCondition } from "../../hooks/useCondition";
 
 const Search = MuiStyled("div")(({ theme }) => ({
   position: "relative",

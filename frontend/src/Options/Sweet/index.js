@@ -11,18 +11,18 @@ const SORTFUNC = (a, b) =>
     SECONDSORTBY.findIndex((e) => b.includes(e)) ||
   a.localeCompare(b);
 
-const SWEETMAP = {
-  微蜜: 1,
-  半蜜: 2,
-  少蜜: 3,
-  多蜜: 4,
-  無糖: 0,
-  "1分糖": 1,
-  微糖: 2,
-  半糖: 3,
-  少糖: 4,
-  正常糖: 5,
-};
+// const SWEETMAP = {
+//   微蜜: 1,
+//   半蜜: 2,
+//   少蜜: 3,
+//   多蜜: 4,
+//   無糖: 0,
+//   "1分糖": 1,
+//   微糖: 2,
+//   半糖: 3,
+//   少糖: 4,
+//   正常糖: 5,
+// };
 
 export default function Sweet() {
   const {
@@ -60,7 +60,7 @@ export default function Sweet() {
         return acc;
       }, {})
     );
-  }, [condition.sweet]);
+  }, [condition.sweet, DATA]);
 
   return (
     <Box>
