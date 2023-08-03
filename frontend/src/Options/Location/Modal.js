@@ -46,6 +46,17 @@ function recursive_set(type, data, ...route) {
   }
 }
 
+function find_collapse(word, tree) {
+  if (Array.isArray(tree)) {
+    return tree.some((t) => t.includes(word));
+  }
+  const keys = Object.keys(tree);
+  for (const key of keys) {
+    if (key.includes(word)) return true;
+    else return find_collapse(word, tree[key]);
+  }
+}
+
 function recursive_reduce(
   DATA,
   chosen,
@@ -79,7 +90,7 @@ function recursive_reduce(
           chosen: chosen.some((e) => e.route.includes(curr) || e.name === curr),
           collapsed: Boolean(
             prevState?.[curr]?.collapsed ||
-              (searchWord && !curr.includes(searchWord))
+              (searchWord && find_collapse(searchWord, DATA[curr]))
           ),
           children: recursive_reduce(
             DATA[curr],
@@ -261,6 +272,7 @@ export default function Modal({ handleModalClose }) {
           tmp.push(store);
         }
       }
+      console.log("currentRoutes", tmp);
       setCurrentRoutes(tmp);
       if (tmp.length) {
         const limit = tmp
@@ -272,7 +284,7 @@ export default function Modal({ handleModalClose }) {
                 (i) => i.name === item.name && i.index === item.index
               ) === index
           );
-        console.log(limit);
+        console.log("limit", limit);
         setSearchingLimit(limit);
         setLocation((prev) =>
           recursive_reduce(DATA, condition.location, prev, limit, 1, searchWord)
