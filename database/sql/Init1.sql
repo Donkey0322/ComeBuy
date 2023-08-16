@@ -28,7 +28,7 @@ CREATE TABLE ices(
     name      VARCHAR     NOT NULL
 );
 
-CREATE TABLE tastes(                           -- 紅都改成紅茶，粉都改成粉條
+CREATE TABLE tastes(                         
     id        SERIAL      PRIMARY KEY,
     name      VARCHAR     NOT NULL
 );
