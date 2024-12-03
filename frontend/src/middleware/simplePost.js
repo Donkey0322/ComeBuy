@@ -1,4 +1,9 @@
 import instance from "./axios";
+import demoSearch from "../assets/search.json";
+import demoLineChart from "../assets/line.json";
+import demoBarChart from "../assets/bar.json";
+import { mode } from "../constants";
+
 const URL = {
   searchItem: "/search_item",
   getLineChart: "/line_item",
@@ -10,6 +15,21 @@ const URL = {
 export default Object.keys(URL).reduce((acc, curr) => {
   acc[curr] = async (data, token = undefined) => {
     try {
+      if (mode === "demo") {
+        switch (curr) {
+          case "searchItem":
+            return demoSearch;
+          case "getLineChart":
+            return demoLineChart;
+          case "getBarChart":
+            return demoBarChart;
+          default:
+            window.alert(
+              "This is a demo environment. Some features are suspended."
+            );
+            return;
+        }
+      }
       const { data: result } = await instance.post(
         URL[curr],
         data,

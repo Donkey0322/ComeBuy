@@ -1,0 +1,134 @@
+[
+    {
+        "location": "新店光明",
+        "drink": "海神",
+        "year": 2021.0,
+        "price": 3535,
+        "amount": 62,
+        "total_price": 6655,
+        "total_amount": 117,
+        "price_proportion": 53.12,
+        "amount_proportion": 52.99
+    },
+    {
+        "location": "新店光明",
+        "drink": "海神",
+        "year": 2022.0,
+        "price": 2820,
+        "amount": 51,
+        "total_price": 5590,
+        "total_amount": 103,
+        "price_proportion": 50.45,
+        "amount_proportion": 49.51
+    },
+    {
+        "location": "新店光明",
+        "drink": "海神",
+        "year": 2023.0,
+        "price": 3275,
+        "amount": 57,
+        "total_price": 6465,
+        "total_amount": 114,
+        "price_proportion": 50.66,
+        "amount_proportion": 50.0
+    },
+    {
+        "location": "新店光明",
+        "drink": "鮮萃大麥紅茶",
+        "year": 2021.0,
+        "price": 3120,
+        "amount": 55,
+        "total_price": 6655,
+        "total_amount": 117,
+        "price_proportion": 46.88,
+        "amount_proportion": 47.01
+    },
+    {
+        "location": "新店光明",
+        "drink": "鮮萃大麥紅茶",
+        "year": 2022.0,
+        "price": 2770,
+        "amount": 52,
+        "total_price": 5590,
+        "total_amount": 103,
+        "price_proportion": 49.55,
+        "amount_proportion": 50.49
+    },
+    {
+        "location": "新店光明",
+        "drink": "鮮萃大麥紅茶",
+        "year": 2023.0,
+        "price": 3190,
+        "amount": 57,
+        "total_price": 6465,
+        "total_amount": 114,
+        "price_proportion": 49.34,
+        "amount_proportion": 50.0
+    },
+    {
+        "location": "花蓮中山",
+        "drink": "海神",
+        "year": 2021.0,
+        "price": 3070,
+        "amount": 57,
+        "total_price": 5855,
+        "total_amount": 107,
+        "price_proportion": 52.43,
+        "amount_proportion": 53.27
+    },
+    {
+        "location": "花蓮中山",
+        "drink": "海神",
+        "year": 2022.0,
+        "price": 3045,
+        "amount": 53,
+        "total_price": 6140,
+        "total_amount": 106,
+        "price_proportion": 49.59,
+        "amount_proportion": 50.0
+    },
+    {
+        "location": "花蓮中山",
+        "drink": "海神",
+        "year": 2023.0,
+        "price": 3300,
+        "amount": 57,
+        "total_price": 6395,
+        "total_amount": 113,
+        "price_proportion": 51.6,
+        "amount_proportion": 50.44
+    },
+    {
+        "location": "花蓮中山",
+        "drink": "鮮萃大麥紅茶",
+        "year": 2021.0,
+        "price": 2785,
+        "amount": 50,
+        "total_price": 5855,
+        "total_amount": 107,
+        "price_proportion": 47.57,
+        "amount_proportion": 46.73
+    },
+    {
+        "location": "花蓮中山",
+        "drink": "鮮萃大麥紅茶",
+        "year": 2022.0,
+        "price": 3095,
+        "amount": 53,
+        "total_price": 6140,
+        "total_amount": 106,
+        "price_proportion": 50.41,
+        "amount_proportion": 50.0
+    },
+    {
+        "location": "花蓮中山",
+        "drink": "鮮萃大麥紅茶",
+        "year": 2023.0,
+        "price": 3095,
+        "amount": 56,
+        "total_price": 6395,
+        "total_amount": 113,
+        "price_proportion": 48.4,
+        "amount_proportion": 49.56
+    }
+]

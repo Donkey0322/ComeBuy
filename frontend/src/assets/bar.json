@@ -1,0 +1,50 @@
+[
+    {
+        "location": "新店光明",
+        "start_date": "2023-01-07",
+        "end_date": "2023-01-07",
+        "drink": "海神",
+        "price": 3275,
+        "amount": 57,
+        "total_price": 6465,
+        "total_amount": 114,
+        "price_proportion": 50.66,
+        "amount_proportion": 50.0
+    },
+    {
+        "location": "新店光明",
+        "start_date": "2023-01-07",
+        "end_date": "2023-01-07",
+        "drink": "鮮萃大麥紅茶",
+        "price": 3190,
+        "amount": 57,
+        "total_price": 6465,
+        "total_amount": 114,
+        "price_proportion": 49.34,
+        "amount_proportion": 50.0
+    },
+    {
+        "location": "花蓮中山",
+        "start_date": "2023-01-07",
+        "end_date": "2023-01-07",
+        "drink": "海神",
+        "price": 3300,
+        "amount": 57,
+        "total_price": 6395,
+        "total_amount": 113,
+        "price_proportion": 51.6,
+        "amount_proportion": 50.44
+    },
+    {
+        "location": "花蓮中山",
+        "start_date": "2023-01-07",
+        "end_date": "2023-01-07",
+        "drink": "鮮萃大麥紅茶",
+        "price": 3095,
+        "amount": 56,
+        "total_price": 6395,
+        "total_amount": 113,
+        "price_proportion": 48.4,
+        "amount_proportion": 49.56
+    }
+]

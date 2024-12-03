@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useCondition } from "../../hooks/useCondition";
+import { mode } from "../../constants";
 
 export default function ResponsiveDateRangePickers() {
   const { condition, setCondition } = useCondition();
@@ -68,6 +69,12 @@ export default function ResponsiveDateRangePickers() {
     }
   }, [condition, initialTime, setCondition]);
 
+  const shouldDisableDate = (dayJs) => {
+    const date = dayJs.format("YYYY-MM-DD");
+    let blackoutDates = ["2023-01-07"];
+    return !blackoutDates.includes(date);
+  };
+
   return (
     <Stack
       direction="row"
@@ -82,6 +89,7 @@ export default function ResponsiveDateRangePickers() {
           label={"開始日期"}
           onChange={handleDateChange("start")}
           disableFuture
+          {...(mode === "demo" && { shouldDisableDate })}
         />
         <p>-</p>
         <DatePicker
@@ -90,6 +98,7 @@ export default function ResponsiveDateRangePickers() {
           minDate={condition.time.date?.start ?? null}
           onChange={handleDateChange("end")}
           disableFuture
+          {...(mode === "demo" && { shouldDisableDate })}
         />
         <Zoom in={Boolean(condition.time.date?.end ?? false)} unmountOnExit>
           <Stack
@@ -103,6 +112,7 @@ export default function ResponsiveDateRangePickers() {
               label={"開始時間"}
               value={condition.time.time?.start ?? null}
               minutesStep={condition.time.time?.start.$H === 23 ? 59 : 60}
+              {...(mode === "demo" && { disabled: true })}
             />
             <p>-</p>
             <TimePicker
@@ -111,6 +121,7 @@ export default function ResponsiveDateRangePickers() {
               minTime={condition.time.time?.start ?? null}
               value={condition.time.time?.end ?? null}
               minutesStep={condition.time.time?.end.$H === 23 ? 59 : 60}
+              {...(mode === "demo" && { disabled: true })}
             />
           </Stack>
         </Zoom>
